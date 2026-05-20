@@ -331,17 +331,16 @@ body.dark-theme .moon-icon { display: none; }
 }
 
 .panel-header {
-    min-height: 52px;
-    height: auto;
-    padding: 10px 20px;
+    height: 52px;
+    padding: 0 20px;
     border-bottom: 1px solid var(--border-color);
     background: var(--card-header-bg);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
     gap: 12px;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .panel-header-title {
