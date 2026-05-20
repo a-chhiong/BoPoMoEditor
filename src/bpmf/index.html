@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-hant-TW">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>〇〇日報 注音/拼音智慧排版編輯器 | BPMF & Pinyin Smart Typography Editor</title>
+    <meta name="description" content="基於〇〇日報美學與教育部字典注音拼音智慧編輯器。支援多音字智慧判定、即時編輯標註、CSS 旁註渲染。">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Local Stylesheet -->
+    <link rel="stylesheet" href="./style.css?v=1.4.0">
+</head>
+
+<body class="light-theme">
+    <!-- Sync theme setter before first paint to completely eliminate theme flash -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('bpmf1-theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.remove('light-theme');
+                document.body.classList.add('dark-theme');
+            }
+        })();
+    </script>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loader-container">
+            <div class="loader-spinner"></div>
+            <div class="loader-title" id="loader-title">系統初始化中...</div>
+            <div class="loader-subtitle" id="loader-subtitle">正在加載排版資源與字型庫</div>
+        </div>
+    </div>
+
+    <div class="app-wrapper">
+
+        <!-- Premium Navigation Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon-wrapper">
+                    <!-- BPMF Logo: Character 'ㄅ' -->
+                    <svg viewBox="0 0 24 24" class="logo-svg">
+                        <text x="12" y="15" dominant-baseline="middle" text-anchor="middle" font-family="'Noto Sans TC', sans-serif" font-weight="900" font-size="22" fill="currentColor">ㄅ</text>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>〇〇日報 <span>注音/拼音智慧排版編輯器</span></h1>
+                    <p>BPMF & Pinyin Smart Typography Editor</p>
+                </div>
+            </div>
+
+            <!-- Toolbar Actions & Theme Toggle -->
+            <div class="header-actions">
+                <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="切換深淺色主題">
+                    <svg viewBox="0 0 24 24" class="sun-icon" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path
+                            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42">
+                        </path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" class="moon-icon" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Responsive Layout (RWD Grid) -->
+        <main class="app-main-grid">
+
+            <!-- Column 1: Editing Area (Left on Desktop, Bottom on Mobile) -->
+            <section class="grid-panel editor-panel">
+                <div class="panel-header">
+                    <div class="panel-header-title">
+                        <!-- Editor Icon (Pen) -->
+                        <svg viewBox="0 0 24 24" class="panel-icon" style="color: var(--primary-color);" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                        <h2 class="hide-on-mobile">編輯文本輸入區</h2>
+                    </div>
+                    <div class="editor-quick-controls">
+                        <button class="btn-text-action" onclick="clearEditor()" title="清空文本">清空</button>
+                        <div class="custom-dropdown" id="preset-dropdown-container">
+                            <button class="editor-preset-trigger" id="preset-dropdown-trigger" onclick="togglePresetDropdown(event)" title="選擇範例載入">
+                                <span>載入範例</span>
+                                <svg viewBox="0 0 24 24" class="dropdown-chevron" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="custom-dropdown-menu" id="preset-dropdown-menu">
+                                <div class="dropdown-item" onclick="selectPreset('preset-poyin')">破音字精選</div>
+                                <div class="dropdown-item" onclick="selectPreset('preset-poem')">唐詩排版</div>
+                                <div class="dropdown-item" onclick="selectPreset('preset-tw')">童謠教材</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editor-body">
+                    <textarea class="main-textarea" id="main-editor"
+                        placeholder="在此輸入中文字，系統將自動解析注音與拼音，並支援點擊右側預覽進行微調偏音..." oninput="handleEditorInput()"></textarea>
+                </div>
+
+                <div class="editor-footer">
+                    <span class="character-counter" id="char-counter">共 0 字</span>
+                    <span class="editor-status-text"><span class="success-dot"></span> 99% 多音字已智慧校正</span>
+                </div>
+            </section>
+
+            <!-- Draggable Resizer Line -->
+            <div class="resizer-line" id="layout-resizer"></div>
+
+            <!-- Column 2: Rendered Area (Right on Desktop, Top on Mobile) -->
+            <section class="grid-panel preview-panel">
+                <div class="panel-header">
+                    <div class="panel-header-title">
+                        <!-- Preview Icon (Layout Grid) -->
+                        <svg viewBox="0 0 24 24" class="panel-icon" style="color: var(--success-color);" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
+                        </svg>
+                        <h2 class="hide-on-mobile">即時旁註排版預覽</h2>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <!-- Preview Zoom Controls (Five Font Size Levels) -->
+                        <div class="preview-zoom-wrapper"
+                            style="display: flex; align-items: center; gap: 8px;">
+                            <span class="toggle-label" style="font-size: 0.75rem;">字型大小：</span>
+                            <div class="zoom-controls-btn-group"
+                                style="display: flex; align-items: center; background: var(--bg-app); border: 1px solid var(--border-color); border-radius: 6px; padding: 2px;">
+                                <button class="zoom-btn" onclick="adjustZoom(-1)" title="縮小字型"
+                                    style="background: none; border: none; padding: 4px 8px; color: var(--text-main); cursor: pointer; border-radius: 4px; display: flex; align-items: center;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        style="width: 12px; height: 12px;">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </button>
+                                <span id="zoom-value"
+                                    style="font-size: 0.75rem; font-weight: 700; min-width: 36px; text-align: center; color: var(--primary-color);">100%</span>
+                                <button class="zoom-btn" onclick="adjustZoom(1)" title="放大字型"
+                                    style="background: none; border: none; padding: 4px 8px; color: var(--text-main); cursor: pointer; border-radius: 4px; display: flex; align-items: center;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        style="width: 12px; height: 12px;">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Export Code Button (styled just like copy-ivs in ivs1) -->
+                        <button class="btn-copy-ivs" onclick="openExportModal()" title="匯出 HTML 原始碼 / PUA 文本" style="background: rgba(65, 187, 176, 0.1); border: 1px solid rgba(65, 187, 176, 0.3); color: var(--primary-color); padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); outline: none;">
+                            <svg style="width:14px;height:14px;stroke:currentColor;" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" />
+                            </svg>
+                            <span class="desktop-text">匯出原始碼</span>
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- Preview Area Viewer -->
+                <div class="preview-body">
+                    <div class="rendered-preview-container" id="rendered-preview" class="mode-zhu">
+                        <!-- Dynamically generated elements -->
+                        <div class="empty-preview-placeholder">
+                            <svg viewBox="0 0 24 24" class="placeholder-svg">
+                                <path fill="none" stroke="currentColor" stroke-width="1.5"
+                                    d="M12 20h9M3 20h4M5 4h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
+                                <path stroke="currentColor" stroke-width="1.5" d="M12 8v4m0 4h.01" />
+                            </svg>
+                            <p>請在左側輸入框輸入中文字，此處將以極致美感的國語日報排版樣式呈現。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Presentation Controls (Moved to Footer) -->
+                <div class="preview-presentation-toolbar" style="border-top: 1px solid var(--border-color); border-bottom: none;">
+                    <div class="presentation-group">
+                        <span class="toolbar-label hide-on-mobile">顯示格式：</span>
+                        <div class="segmented-control">
+                            <button class="segment-btn active" data-mode="mode-zhu" onclick="setPresentationMode('mode-zhu')" title="中 + 注音 (右側旁註)">
+                                <svg viewBox="0 0 24 24" class="mobile-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                    <rect x="5" y="5" width="9" height="14" rx="2"></rect>
+                                    <path d="M 18 6 v 12"></path>
+                                </svg>
+                                <span class="desktop-text">中 + 注音</span>
+                            </button>
+                            <button class="segment-btn" data-mode="mode-pin" onclick="setPresentationMode('mode-pin')" title="中 + 拼音 (上方旁註)">
+                                <svg viewBox="0 0 24 24" class="mobile-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                    <rect x="5" y="10" width="14" height="9" rx="2"></rect>
+                                    <path d="M 6 5 h 12"></path>
+                                </svg>
+                                <span class="desktop-text">中 + 拼音</span>
+                            </button>
+                            <button class="segment-btn" data-mode="mode-zhu-only" onclick="setPresentationMode('mode-zhu-only')" title="僅注音">
+                                <svg viewBox="0 0 24 24" class="mobile-icon" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                    <path d="M 12 4 v 16"></path>
+                                </svg>
+                                <span class="desktop-text">僅注音</span>
+                            </button>
+                            <button class="segment-btn" data-mode="mode-pin-only" onclick="setPresentationMode('mode-pin-only')" title="僅拼音">
+                                <svg viewBox="0 0 24 24" class="mobile-icon" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                                    <path d="M 4 12 h 16"></path>
+                                </svg>
+                                <span class="desktop-text">僅拼音</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Layout export & audio triggers -->
+                    <div class="presentation-actions">
+
+                        <button class="action-icon-btn btn-audio" id="btn-tts-play" onclick="toggleTts()" title="播放朗讀">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                id="tts-play-icon">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                        <button class="action-icon-btn btn-audio" id="btn-tts-stop" onclick="stopTts()" title="停止播放"
+                            disabled>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Candidate Drawer Bar (Always Fixed at the Bottom) -->
+        <footer class="candidate-bar-wrapper" id="candidate-bar">
+            <div class="candidate-container">
+
+                <!-- Unselected State -->
+                <div class="candidate-empty" id="candidate-empty-state">
+                    <svg viewBox="0 0 24 24" class="candidate-empty-icon" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <p>提示：開啟<strong>「點擊校正模式」</strong>，並在上方點擊任一中文字，即可在此面板精細微調多音字的讀音，或拼裝自訂音標。</p>
+                </div>
+
+                <!-- Active Selected Word Panel -->
+                <div class="candidate-active-grid" id="candidate-active-state" style="display: none;">
+
+                    <!-- Col 1: Selected Info -->
+                    <div class="candidate-col word-profile">
+                        <div class="profile-badge">
+                            <div class="profile-char" id="selected-char">和</div>
+                            <div class="profile-details">
+                                <span class="profile-unicode" id="selected-unicode">U+548C</span>
+                                <span class="profile-type-badge" id="selected-type-badge">多音字</span>
+                            </div>
+                        </div>
+
+                        <!-- Sleek Segmented Switcher for Mobile only -->
+                        <div class="candidate-mobile-tabs">
+                            <div class="segmented-control">
+                                <button class="segment-btn cand-tab-btn active" data-tab="suggest" onclick="switchCandidateTab('suggest')">
+                                    <span>建議讀音</span>
+                                </button>
+                                <button class="segment-btn cand-tab-btn" data-tab="custom" onclick="switchCandidateTab('custom')">
+                                    <span>手動自訂</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Mobile Close Button -->
+                        <button class="candidate-mobile-close" onclick="deselectWord()" title="關閉控制台">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px;">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+
+                        <div class="profile-special-actions hide-on-mobile">
+                            <button class="btn-special" onclick="applySpecialPresentation('blank')">注音留白
+                                (E01E0)</button>
+                            <button class="btn-special" onclick="applySpecialPresentation('brackets')">注音填空
+                                (留空引導)</button>
+                        </div>
+                    </div>
+
+                    <!-- Col 2: Phonetic Candidates List -->
+                    <div class="candidate-col phonetic-list-section" id="cand-tab-suggest">
+                        <h3 class="col-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                style="width:14px;height:14px;margin-right:4px;">
+                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                                <path d="M12 6v6l4 2" />
+                            </svg>
+                            建議讀音候選庫 (點擊即時更換)
+                        </h3>
+                        <div class="candidates-options-flex" id="candidates-options-container">
+                            <!-- Dynamically generated button options -->
+                        </div>
+                    </div>
+
+                    <!-- Col 3: Custom Annotation Editor & Bopomofo Keyboard -->
+                    <div class="candidate-col custom-assembler-section" id="cand-tab-custom">
+                        <h3 class="col-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                style="width:14px;height:14px;margin-right:4px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z" />
+                            </svg>
+                            手動拼裝自訂音標
+                        </h3>
+                        <div class="custom-assembler-inputs">
+                            <div class="input-field">
+                                <label>自訂注音</label>
+                                <input type="text" id="custom-zhuyin-input" placeholder="例如：ㄏㄜˊ"
+                                    oninput="validateCustomInput()">
+                            </div>
+                            <div class="input-field">
+                                <label>自訂拼音</label>
+                                <input type="text" id="custom-pinyin-input" placeholder="例如：hé"
+                                    oninput="validateCustomInput()">
+                            </div>
+                            <button class="btn-apply-custom" id="btn-apply-custom" onclick="applyCustomPhonetic()"
+                                disabled>
+                                套用修改
+                            </button>
+                        </div>
+                        <!-- Special actions nested inside the manual tab for mobile screens -->
+                        <div class="mobile-special-actions show-on-mobile-flex">
+                            <button class="btn-special" onclick="applySpecialPresentation('blank')">注音留白</button>
+                            <button class="btn-special" onclick="applySpecialPresentation('brackets')">注音填空</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Export Modal popup -->
+    <div class="modal-backdrop" id="export-modal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>匯出排版原始碼</h3>
+                <button class="modal-close" onclick="closeExportModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="width:20px;height:20px;">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="modal-tabs">
+                <button class="tab-btn active" onclick="switchModalTab('tab-html')">HTML 旁註標記</button>
+                <button class="tab-btn" onclick="switchModalTab('tab-css')">CSS 樣式表</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Tab: HTML -->
+                <div class="tab-content" id="tab-html">
+                    <p class="tab-desc">這是最通用的旁註網頁代碼，使用 <code>&lt;bpmf&gt;</code> 自訂屬性結構，結合 CSS 來呈現極致細膩的注音/拼音位置調整。</p>
+                    <div class="code-area-wrapper">
+                        <textarea class="code-textarea" id="export-html-code" readonly></textarea>
+                    </div>
+                </div>
+
+                <!-- Tab: CSS -->
+                <div class="tab-content" id="tab-css" style="display: none;">
+                    <p class="tab-desc">請將下方 CSS 樣式表貼入您的網站 <code>&lt;style&gt;</code> 區塊或 <code>index.css</code>
+                        中，即可在任何瀏覽器完美呈現注音旁註。</p>
+                    <div class="code-area-wrapper">
+                        <textarea class="code-textarea" id="export-css-code" readonly></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <span class="toast-indicator" id="copy-success-indicator">已複製到剪貼簿！</span>
+                <button class="btn-secondary" onclick="closeExportModal()">關閉</button>
+                <button class="btn-primary" onclick="copyModalCode()">複製此代碼</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Toast System -->
+    <div class="toast-message-sys" id="sys-toast">
+        <span class="toast-text" id="sys-toast-text">字型載入成功！</span>
+    </div>
+
+    <!-- 1. Load SheetJS for on-the-fly Excel Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- 2. Load Main Application Logic (with ES Module Imports) -->
+    <script type="module" src="./script.js?v=1.4.0"></script>
+</body>
+
+</html>
