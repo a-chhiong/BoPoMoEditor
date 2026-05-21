@@ -9,7 +9,7 @@
    ---------------------------------------------------------------- */
 @font-face {
     font-family: 'BopomofoRuby';
-    src: url('/src/fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype'); /* FONTS.RUBY */
+    src: url('../../../fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype'); /* FONTS.RUBY */
     font-weight: normal;
     font-style: normal;
 }

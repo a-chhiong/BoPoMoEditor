@@ -9,17 +9,17 @@
    ---------------------------------------------------------------- */
 @font-face {
     font-family: 'BpmfHuninn';
-    src: url('/src/fonts/BpmfHuninn-Regular.ttf') format('truetype');     /* FONTS.HUNINN */
+    src: url('../../../fonts/BpmfHuninn-Regular.ttf') format('truetype');     /* FONTS.HUNINN */
 }
 
 @font-face {
     font-family: 'BpmfIansui';
-    src: url('/src/fonts/BpmfIansui-Regular.ttf') format('truetype');     /* FONTS.IANSUI */
+    src: url('../../../fonts/BpmfIansui-Regular.ttf') format('truetype');     /* FONTS.IANSUI */
 }
 
 @font-face {
     font-family: 'BpmfZihiKaiStd';
-    src: url('/src/fonts/BpmfZihiKaiStd-Regular.ttf') format('truetype'); /* FONTS.ZIHIKAI */
+    src: url('../../../fonts/BpmfZihiKaiStd-Regular.ttf') format('truetype'); /* FONTS.ZIHIKAI */
 }
 
 /* --- Theme CSS Variables (Aligned with BPMF warm cream/teal design system) --- */

@@ -18,32 +18,32 @@
 // --- Base URL origins (resolved from the web server document root) ---
 
 /** Absolute base path to the fonts directory (served from root) */
-const FONTS_BASE = '/src/fonts';
+const FONTS_BASE = new URL('../fonts/', import.meta.url).href;
 
 /** Absolute base path to the assets directory (served from root) */
-const ASSETS_BASE = '/src/assets';
+const ASSETS_BASE = new URL('../assets/', import.meta.url).href;
 
 // --- Font file paths ---
 
 export const FONTS = {
     /** 注音粉圓 by ButTaiwan (~4.8 MB) */
-    HUNINN:   `${FONTS_BASE}/BpmfHuninn-Regular.ttf`,
+    HUNINN:  new URL('BpmfHuninn-Regular.ttf', FONTS_BASE).href,
 
     /** 注音芫荽 by ButTaiwan (~7.7 MB) */
-    IANSUI:   `${FONTS_BASE}/BpmfIansui-Regular.ttf`,
+    IANSUI:  new URL('BpmfIansui-Regular.ttf', FONTS_BASE).href,
 
     /** 字嗨注音標楷 by ButTaiwan (~17.5 MB) */
-    ZIHIKAI:  `${FONTS_BASE}/BpmfZihiKaiStd-Regular.ttf`,
+    ZIHIKAI: new URL('BpmfZihiKaiStd-Regular.ttf', FONTS_BASE).href,
 
     /** BopomofoRuby annotation font — used by bpmf ruby rendering */
-    RUBY:     `${FONTS_BASE}/BopomofoRuby1909-v1-Regular.ttf`,
+    RUBY:    new URL('BopomofoRuby1909-v1-Regular.ttf', FONTS_BASE).href,
 };
 
 // --- Asset file paths ---
 
 export const ASSETS = {
     /** MOE Concise Dictionary Excel database (教育部國語辭典簡編本) */
-    DICT_FILE: `${ASSETS_BASE}/dict_concised_2014_20260325.xlsx`,
+    DICT_FILE: new URL('dict_concised_2014_20260325.xlsx', ASSETS_BASE).href,
 };
 
 // --- IVS font switcher map ---
