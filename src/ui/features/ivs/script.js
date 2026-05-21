@@ -2,11 +2,12 @@
    BoPoMo IVS Typeface Explorer & Validator (Refactored Module Layer)
    ========================================================================== */
 
-import { BpmfEngine } from '../services/bpmf.js';
-import { MoeDictionary } from '../services/dict.js';
-import { IvsEngine } from '../services/ivs.js';
-import { RubyDatabase } from '../services/ruby.js';
-import { TtsEngine } from '../services/tts.js';
+import { BpmfEngine } from '../../../services/bpmf.js';
+import { MoeDictionary } from '../../../services/dict.js';
+import { IvsEngine } from '../../../services/ivs.js';
+import { RubyDatabase } from '../../../services/ruby.js';
+import { TtsEngine } from '../../../services/tts.js';
+import { IVS_FONT_MAP } from '../../../configs/path.js';
 
 // Global State variables
 let currentFontFamily = 'BpmfHuninn';
@@ -31,9 +32,10 @@ const VS_BASE = IvsEngine.VS_BASE;
 
 // Presets data
 const PRESETS = {
-    'preset-poyin': '這項技術能把攪和、暖和與和牌完美融合在和諧之中，銀行行員也非常在行！我們重溫音樂時感到了無比快樂，著手著陸時卻很著急。',
-    'preset-textbook': '旅行者一號：各位都好吧？我們都很想念你們。有空就來玩。\n(請學生練習：寫出「旅行者一號」的正確注音。)',
-    'preset-poem': '朝辭白帝彩雲間，千里江陵一日還。\n兩岸猿聲啼不住，輕舟已過萬重山。'
+    'preset-poyin': '我們在溫暖的陽光下散步，感覺非常暖和。小明和同學正在和牌，大家玩得十分和諧。這項技術能把攪和、暖和與和牌完美融合在和諧之中，銀行行員也非常在行！我們重溫音樂時感到了無比快樂，著手著陸時卻很著急。',
+    'preset-poem': '《靜夜思》 李白\n床前明月光，疑是地上霜。\n舉頭望明月，低頭思故鄉。',
+    'preset-baidi': '《早發白帝城》 李白\n朝辭白帝彩雲間，千里江陵一日還。\n兩岸猿聲啼不住，輕舟已過萬重山。',
+    'preset-tw': '火金姑，來食茶。\n茶燒燒，配香蕉。\n香蕉冷冷，配龍眼。\n龍眼糖糖，配麻糬。'
 };
 
 // Initialize application once document is ready
@@ -73,7 +75,8 @@ window.addEventListener('DOMContentLoaded', () => {
             }
             
             // Register font face for default font on the fly immediately, then parse
-            switchFont('BpmfHuninn', '../fonts/BpmfHuninn-Regular.ttf', '注音粉圓 (ButTaiwan)', '4.8 MB')
+            const hf = IVS_FONT_MAP.huninn;
+            switchFont(hf.family, hf.path, hf.label, hf.size)
                 .then(() => {
                     handleLoadText();
                 });
@@ -192,6 +195,14 @@ document.addEventListener('click', (event) => {
     if (isPresetDropdownOpen && container && !container.contains(event.target)) {
         togglePresetDropdown();
     }
+
+    const fontContainer = document.getElementById('font-dropdown-container');
+    const fontMenu = document.getElementById('font-dropdown-menu');
+    const fontTrigger = document.getElementById('font-dropdown-trigger');
+    if (fontMenu && fontMenu.classList.contains('show') && fontContainer && !fontContainer.contains(event.target)) {
+        fontMenu.classList.remove('show');
+        fontTrigger.classList.remove('open');
+    }
 });
 
 // Zoom logic
@@ -225,18 +236,18 @@ function buildTtsData() {
             plainText += info.baseChar;
             charMap.push(i);
         } else {
-            // Include punctuation
+            // Keep all characters including punctuation and whitespace, only strip IVS variation selectors
             const cleanToken = token.replace(/[\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu, '');
-            if (cleanToken.trim()) {
+            if (cleanToken.length > 0) {
                 plainText += cleanToken;
-                for(let j=0; j<cleanToken.length; j++) {
+                for (let j = 0; j < cleanToken.length; j++) {
                     charMap.push(i);
                 }
             }
         }
     }
     
-    if (!plainText) {
+    if (!plainText.trim()) {
         showToast('沒有可朗讀的文字');
         return { textToRead: null, charMap: null };
     }
@@ -247,8 +258,10 @@ function updateTtsUI(state) {
     const playIcon = document.getElementById('tts-play-icon');
     const btnStop = document.getElementById('btn-tts-stop');
     const btnPlay = document.getElementById('btn-tts-play');
+    const renderer = document.getElementById('live-renderer');
 
     if (state === 'playing') {
+        if (renderer) renderer.classList.remove('tts-paused');
         playIcon.innerHTML = `
             <line x1="17" y1="4" x2="17" y2="20"></line>
             <line x1="7" y1="4" x2="7" y2="20"></line>
@@ -256,10 +269,12 @@ function updateTtsUI(state) {
         btnPlay.title = '暫停朗讀';
         btnStop.disabled = false;
     } else if (state === 'paused') {
+        if (renderer) renderer.classList.add('tts-paused');
         playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
         btnPlay.title = '繼續播放';
         btnStop.disabled = false;
     } else {
+        if (renderer) renderer.classList.remove('tts-paused');
         playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
         btnPlay.title = '播放朗讀';
         btnStop.disabled = true;
@@ -302,6 +317,12 @@ async function switchFont(fontName, fontUrl, displayName, size) {
     else if (fontName === 'BpmfIansui') document.getElementById('btn-iansui').classList.add('active');
     else if (fontName === 'BpmfZihiKaiStd') document.getElementById('btn-zihikai').classList.add('active');
     else if (fontName === 'System') document.getElementById('btn-system').classList.add('active');
+
+    // Sync mobile custom dropdown label
+    const mobileLabel = document.getElementById('font-mobile-trigger-label');
+    if (mobileLabel) {
+        mobileLabel.innerText = displayName;
+    }
 
     if (fontName === 'System') {
         document.getElementById('live-renderer').style.fontFamily = "'Noto Sans TC', sans-serif";
@@ -821,11 +842,48 @@ window.applyPronunciation = applyPronunciation;
 // Mobile font dropdown helper
 window.switchFontFromSelect = function(val) {
     const MAP = {
-        huninn:  ['BpmfHuninn', '../fonts/BpmfHuninn-Regular.ttf', '注音粉圓 (ButTaiwan)', '4.8 MB'],
-        iansui:  ['BpmfIansui', '../fonts/BpmfIansui-Regular.ttf', '注音芫荽 (ButTaiwan)', '7.7 MB'],
-        zihikai: ['BpmfZihiKaiStd', '../fonts/BpmfZihiKaiStd-Regular.ttf', '字嗨注音標楷 (ButTaiwan)', '17.5 MB'],
-        system:  ['System', '', '系統預設黑體 (無注音標記)', '0 KB']
+        huninn:  [IVS_FONT_MAP.huninn.family,  IVS_FONT_MAP.huninn.path,   IVS_FONT_MAP.huninn.label,   IVS_FONT_MAP.huninn.size],
+        iansui:  [IVS_FONT_MAP.iansui.family,  IVS_FONT_MAP.iansui.path,   IVS_FONT_MAP.iansui.label,   IVS_FONT_MAP.iansui.size],
+        zihikai: [IVS_FONT_MAP.zihikai.family, IVS_FONT_MAP.zihikai.path,  IVS_FONT_MAP.zihikai.label,  IVS_FONT_MAP.zihikai.size],
+        system:  [IVS_FONT_MAP.system.family,  IVS_FONT_MAP.system.path,   IVS_FONT_MAP.system.label,   IVS_FONT_MAP.system.size],
     };
     const args = MAP[val];
     if (args) switchFont(...args);
 };
+
+function toggleFontDropdown(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    const menu = document.getElementById('font-dropdown-menu');
+    const trigger = document.getElementById('font-dropdown-trigger');
+    
+    // Close other dropdowns if open
+    if (isPresetDropdownOpen) {
+        togglePresetDropdown();
+    }
+
+    if (menu) {
+        const isShown = menu.classList.contains('show');
+        if (isShown) {
+            menu.classList.remove('show');
+            trigger.classList.remove('open');
+        } else {
+            menu.classList.add('show');
+            trigger.classList.add('open');
+        }
+    }
+}
+
+function selectFontMode(val) {
+    switchFontFromSelect(val);
+    const menu = document.getElementById('font-dropdown-menu');
+    const trigger = document.getElementById('font-dropdown-trigger');
+    if (menu) {
+        menu.classList.remove('show');
+        trigger.classList.remove('open');
+    }
+}
+
+window.toggleFontDropdown = toggleFontDropdown;
+window.selectFontMode = selectFontMode;

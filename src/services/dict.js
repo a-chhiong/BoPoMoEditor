@@ -3,9 +3,11 @@
    Wrapped as a reusable ES6 Export Class
    ========================================================================== */
 
+import { ASSETS } from '../configs/path.js';
+
 export class MoeDictionary {
 
-    static DICT_FILE = '../assets/dict_concised_2014_20260325.xlsx';
+    static DICT_FILE = ASSETS.DICT_FILE;
 
     // Mathematically verified closed set of all 24 grammatical clitics in the MOE Concise Dictionary
     static CLITIC_CHARS = new Set([

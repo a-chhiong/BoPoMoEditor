@@ -3,8 +3,8 @@
    High-Accuracy Contextual Conversion, Serialization, & RWD Interactivity
    ========================================================================== */
 
-import { BpmfEngine } from '../services/bpmf.js';
-import { TtsEngine } from '../services/tts.js';
+import { BpmfEngine } from '../../../services/bpmf.js';
+import { TtsEngine } from '../../../services/tts.js';
 
 // --- Global Application State ---
 let parsedTokens = [];
@@ -17,10 +17,10 @@ let activeFont = 'BopomofoRuby';
 let presentationMode = 'mode-zhu';
 let correctionMode = true;
 
-// Presets database
 const PRESETS = {
-    'preset-poyin': '我們在溫暖的陽光下散步，感覺非常暖和。小明和同學正在和牌，大家玩得十分和諧，銀行行員也非常在行！我們重溫音樂時感到了無比快樂，著手著陸時卻很著急。',
+    'preset-poyin': '我們在溫暖的陽光下散步，感覺非常暖和。小明和同學正在和牌，大家玩得十分和諧。這項技術能把攪和、暖和與和牌完美融合在和諧之中，銀行行員也非常在行！我們重溫音樂時感到了無比快樂，著手著陸時卻很著急。',
     'preset-poem': '《靜夜思》 李白\n床前明月光，疑是地上霜。\n舉頭望明月，低頭思故鄉。',
+    'preset-baidi': '《早發白帝城》 李白\n朝辭白帝彩雲間，千里江陵一日還。\n兩岸猿聲啼不住，輕舟已過萬重山。',
     'preset-tw': '火金姑，來食茶。\n茶燒燒，配香蕉。\n香蕉冷冷，配龍眼。\n龍眼糖糖，配麻糬。'
 };
 
@@ -63,6 +63,14 @@ window.addEventListener('DOMContentLoaded', () => {
         if (presetMenu && presetMenu.classList.contains('show') && !e.target.closest('#preset-dropdown-container')) {
             presetMenu.classList.remove('show');
             presetTrigger.classList.remove('open');
+        }
+
+        // Close presentation dropdown if clicked outside
+        const presMenu = document.getElementById('presentation-dropdown-menu');
+        const presTrigger = document.getElementById('presentation-dropdown-trigger');
+        if (presMenu && presMenu.classList.contains('show') && !e.target.closest('#presentation-dropdown-container')) {
+            presMenu.classList.remove('show');
+            presTrigger.classList.remove('open');
         }
 
         // Deselect word focus in correction mode when clicking empty space
@@ -214,7 +222,7 @@ function renderPreview() {
                     <path fill="none" stroke="currentColor" stroke-width="1.5" d="M12 20h9M3 20h4M5 4h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
                     <path stroke="currentColor" stroke-width="1.5" d="M12 8v4m0 4h.01"/>
                 </svg>
-                <p>請在左側輸入框輸入中文字，此處將以極致美感的國語日報排版樣式呈現。</p>
+                <p>請在左側輸入框輸入中文字，此處將以極致美感的〇〇日報排版樣式呈現。</p>
             </div>
         `;
         return;
@@ -267,8 +275,54 @@ function setPresentationMode(mode) {
         }
     });
 
+    const mobileLabel = document.getElementById('presentation-mobile-trigger-label');
+    if (mobileLabel) {
+        const MAP = {
+            'mode-zhu': '中 + 注音',
+            'mode-pin': '中 + 拼音',
+            'mode-zhu-only': '僅注音',
+            'mode-pin-only': '僅拼音',
+            'mode-han-only': '僅中文'
+        };
+        mobileLabel.innerText = MAP[mode] || mode;
+    }
+
     renderPreview();
-    showToast(`切換顯示格式：${document.querySelector(`.segment-btn[data-mode="${mode}"]`).innerText}`);
+    const activeBtn = document.querySelector(`.segment-btn[data-mode="${mode}"]`);
+    const modeLabel = activeBtn ? activeBtn.innerText.trim() : mode;
+    showToast(`切換顯示格式：${modeLabel}`);
+}
+
+function togglePresentationDropdown(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    const menu = document.getElementById('presentation-dropdown-menu');
+    const trigger = document.getElementById('presentation-dropdown-trigger');
+    
+    // Close other dropdowns
+    const presetMenu = document.getElementById('preset-dropdown-menu');
+    const presetTrigger = document.getElementById('preset-dropdown-trigger');
+    if (presetMenu) {
+        presetMenu.classList.remove('show');
+        presetTrigger.classList.remove('open');
+    }
+
+    if (menu) {
+        const isShown = menu.classList.contains('show');
+        menu.classList.toggle('show', !isShown);
+        trigger.classList.toggle('open', !isShown);
+    }
+}
+
+function selectPresentationMode(mode) {
+    setPresentationMode(mode);
+    const menu = document.getElementById('presentation-dropdown-menu');
+    const trigger = document.getElementById('presentation-dropdown-trigger');
+    if (menu) {
+        menu.classList.remove('show');
+        trigger.classList.remove('open');
+    }
 }
 
 function toggleCorrectionMode() {
@@ -757,6 +811,8 @@ window.clearEditor = clearEditor;
 window.togglePresetDropdown = togglePresetDropdown;
 window.selectPreset = selectPreset;
 window.setPresentationMode = setPresentationMode;
+window.togglePresentationDropdown = togglePresentationDropdown;
+window.selectPresentationMode = selectPresentationMode;
 window.toggleCorrectionMode = toggleCorrectionMode;
 window.switchCandidateTab = switchCandidateTab;
 window.applySpecialPresentation = applySpecialPresentation;
