@@ -222,7 +222,7 @@ function renderPreview() {
                     <path fill="none" stroke="currentColor" stroke-width="1.5" d="M12 20h9M3 20h4M5 4h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
                     <path stroke="currentColor" stroke-width="1.5" d="M12 8v4m0 4h.01"/>
                 </svg>
-                <p>請在左側輸入框輸入中文字，此處將以極致美感的〇〇日報排版樣式呈現。</p>
+                <p>請在左側輸入框輸入中文字。</p>
             </div>
         `;
         return;

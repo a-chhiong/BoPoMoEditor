@@ -74,6 +74,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 textInput.value = PRESETS['preset-poyin'];
             }
             
+            // Load authoritative IVS character map from bpmfvs (non-blocking, graceful fallback)
+            IvsEngine.loadIVSMap().catch(() => {});
+
             // Register font face for default font on the fly immediately, then parse
             const hf = IVS_FONT_MAP.huninn;
             switchFont(hf.family, hf.path, hf.label, hf.size)
@@ -162,7 +165,7 @@ function initLayoutResizer() {
 function clearEditor() {
     document.getElementById('text-input').value = '';
     handleEditorInput();
-    showToast('文本已清空');
+    showToast('編輯器已清空');
 }
 
 // Toggle Preset Dropdown
@@ -457,6 +460,19 @@ function renderInteractiveTokens() {
     const renderer = document.getElementById('live-renderer');
     renderer.innerHTML = '';
 
+    if (parsedTokens.length === 0) {
+        renderer.innerHTML = `
+            <div class="empty-preview-placeholder">
+                <svg viewBox="0 0 24 24" class="placeholder-svg">
+                    <path fill="none" stroke="currentColor" stroke-width="1.5" d="M12 20h9M3 20h4M5 4h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                    <path stroke="currentColor" stroke-width="1.5" d="M12 8v4m0 4h.01"/>
+                </svg>
+                <p>請在左側輸入框輸入中文字。</p>
+            </div>
+        `;
+        return;
+    }
+
     parsedTokens.forEach((token, index) => {
         const info = IvsEngine.getTokenInfo(token);
         
@@ -559,36 +575,39 @@ function selectWord(index) {
         genericSection.style.display = 'none';
 
         // Display options
-        info.candidates.forEach((candidate, i) => {
-            // Generate annotated display using temporary font token
-            const vsChar = i > 0 ? String.fromCodePoint(VS_BASE + i) : '';
+        info.candidates.forEach((candidate) => {
+            // Use authoritative ivsIndex from IVS map (phonic_table_Z.txt order)
+            // ivsIndex: 0 = no VS (base glyph), >= 1 = VS_BASE + ivsIndex
+            const ivsIdx = candidate.ivsIndex ?? 0;
+            const vsChar = ivsIdx > 0 ? String.fromCodePoint(VS_BASE + ivsIdx) : '';
             const optionToken = info.baseChar + vsChar;
 
             const card = document.createElement('div');
-            card.className = `poyin-option-card ${info.vsIndex === i || (i === 0 && info.vsIndex === null && info.type === 'polyphonic') ? 'active' : ''}`;
+            const isActive = (info.vsIndex === ivsIdx) || (ivsIdx === 0 && info.vsIndex === null && info.type === 'polyphonic');
+            card.className = `poyin-option-card ${isActive ? 'active' : ''}`;
             
             const zy = candidate.zhuyin;
             const py = BpmfEngine.zhuyinToPinyin(zy);
             
             const baseHex = info.baseChar.codePointAt(0).toString(16).toUpperCase();
-            const vsHex = (VS_BASE + i).toString(16).toUpperCase();
+            const vsHex = (VS_BASE + ivsIdx).toString(16).toUpperCase();
 
             card.innerHTML = `
                 <div class="poyin-text">
-                    <span class="poyin-index">VS${17 + i}</span>
+                    <span class="poyin-index">VS${17 + ivsIdx}</span>
                     <span class="poyin-annotated" style="font-family: ${currentFontFamily}, sans-serif">${optionToken}</span>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <span style="font-size: 0.9rem; font-weight: 500;">${zy} <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 400;">(${py})</span></span>
                     <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px;">
                         <span class="unicode-pill">U+${baseHex}</span>
-                        ${i > 0 ? `<span class="unicode-pill" style="color: var(--accent-blue); border-color: rgba(0, 210, 255, 0.3);">U+${vsHex}</span>` : ''}
+                        ${ivsIdx > 0 ? `<span class="unicode-pill" style="color: var(--accent-blue); border-color: rgba(0, 210, 255, 0.3);">U+${vsHex}</span>` : ''}
                     </div>
                 </div>
             `;
 
             card.addEventListener('click', () => {
-                applyPronunciation(i);
+                applyPronunciation(ivsIdx);
             });
 
             optionsContainer.appendChild(card);

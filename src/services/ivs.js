@@ -6,11 +6,53 @@
 import { MoeDictionary } from './dict.js';
 import { BpmfEngine } from './bpmf.js';
 import { RubyDatabase } from './ruby.js';
+import { ASSETS } from '../configs/path.js';
 
 export class IvsEngine {
 
     // Variation selector base for ButTaiwan Bopomofo custom fonts (BpmfHuninn, BpmfIansui, BpmfZihiKaiStd)
     static VS_BASE = 0xE01E0;
+
+    // Authoritative IVS character map loaded from ButTaiwan bpmfvs phonic_table_Z.txt
+    // Maps: char -> string[] where index 0 = no VS (base), index 1 = VS18, index 2 = VS19, ...
+    static ivsCharMap = new Map();
+    static ivsMapLoaded = false;
+
+    // URL for the authoritative bpmfvs phonetic table
+    static IVS_TABLE_URL = ASSETS.PHONIC_TABLE_Z;
+
+    /**
+     * Loads the authoritative IVS character pronunciation map from ButTaiwan bpmfvs phonic_table_Z.txt.
+     * This defines the exact VS index ordering (VS17/no-VS=0, VS18=1, VS19=2, ...) for every
+     * polyphonic character. Must be called before alignIVSText / getTokenInfo for correct results.
+     * @returns {Promise<void>}
+     */
+    static async loadIVSMap() {
+        if (IvsEngine.ivsMapLoaded) return;
+        try {
+            const res = await fetch(IvsEngine.IVS_TABLE_URL);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const text = await res.text();
+            const map = new Map();
+            for (const line of text.split('\n')) {
+                const parts = line.split('\t');
+                // Format: char \t hex \t category \t reading0 \t reading1 ...
+                if (parts.length < 5) continue; // Only load polyphonic chars (2+ readings)
+                const char = parts[0];
+                const readings = parts.slice(3); // readings start at index 3
+                if (char && readings.length >= 2) {
+                    map.set(char, readings);
+                }
+            }
+            IvsEngine.ivsCharMap = map;
+            IvsEngine.ivsMapLoaded = true;
+            console.log(`IVS map loaded: ${map.size} polyphonic characters from bpmfvs phonic_table_Z.txt`);
+        } catch (err) {
+            console.warn('Failed to load IVS map from bpmfvs, falling back to dictionary order:', err);
+            // Non-fatal: alignIVSText will fall back to dictionary candidate order
+            IvsEngine.ivsMapLoaded = true;
+        }
+    }
 
     /**
      * Robust Unicode IVS Tokenizer
@@ -90,10 +132,23 @@ export class IvsEngine {
             // If it is polyphonic in MoeDictionary, check if contextual zhuyin matches a candidate
             const candidates = MoeDictionary.singleChars[baseChar] || [];
             if (candidates.length > 1 && contextToken && contextToken.zhuyin) {
-                const matchIdx = candidates.findIndex(c => c.zhuyin === contextToken.zhuyin);
+                const targetZhuyin = contextToken.zhuyin;
+
+                // Prefer the authoritative IVS map (phonic_table_Z.txt font VS order)
+                const ivsReadings = IvsEngine.ivsCharMap.get(baseChar);
+                if (ivsReadings) {
+                    const ivsIdx = ivsReadings.indexOf(targetZhuyin);
+                    if (ivsIdx !== -1) {
+                        // index 0 = no VS (base rendering), index >= 1 = VS_BASE + ivsIdx
+                        const vsChar = ivsIdx > 0 ? String.fromCodePoint(IvsEngine.VS_BASE + ivsIdx) : '';
+                        return baseChar + vsChar;
+                    }
+                }
+
+                // Fallback: use dictionary candidate order if char not in IVS map
+                const matchIdx = candidates.findIndex(c => c.zhuyin === targetZhuyin);
                 if (matchIdx !== -1) {
-                    // Auto-append the matching variation selector
-                    const vsChar = String.fromCodePoint(IvsEngine.VS_BASE + matchIdx);
+                    const vsChar = matchIdx > 0 ? String.fromCodePoint(IvsEngine.VS_BASE + matchIdx) : '';
                     return baseChar + vsChar;
                 }
             }
@@ -120,8 +175,8 @@ export class IvsEngine {
         let bopomofoText = '';
 
         // Check polyphonic candidates in our dynamic MOE database
-        const candidates = MoeDictionary.singleChars[baseChar] || [];
-        const hasPolyphonic = candidates.length > 1;
+        const dictCandidates = MoeDictionary.singleChars[baseChar] || [];
+        const hasPolyphonic = dictCandidates.length > 1;
 
         if (parts.length === 1) {
             if (hasPolyphonic) {
@@ -152,6 +207,27 @@ export class IvsEngine {
                 vsIndex = vsCode - IvsEngine.VS_BASE;
                 type = 'modified'; // Specific pronunciation variation chosen
             }
+        }
+
+        // Build the candidates list ordered by font IVS map (phonic_table_Z.txt) when available,
+        // falling back to dictionary order. Each candidate carries its authoritative ivsIndex.
+        let candidates;
+        const ivsReadings = IvsEngine.ivsCharMap.get(baseChar);
+        if (ivsReadings && hasPolyphonic) {
+            // Merge: IVS map defines order; only include readings that exist in dict candidates
+            const dictZhuyinSet = new Set(dictCandidates.map(c => c.zhuyin));
+            candidates = ivsReadings
+                .map((zhuyin, ivsIdx) => ({ zhuyin, ivsIndex: ivsIdx }))
+                .filter(c => dictZhuyinSet.has(c.zhuyin));
+            // Append any dict candidates not in IVS map (edge case)
+            for (const dc of dictCandidates) {
+                if (!ivsReadings.includes(dc.zhuyin)) {
+                    candidates.push({ zhuyin: dc.zhuyin, ivsIndex: null });
+                }
+            }
+        } else {
+            // Fallback: use dictionary candidates, ivsIndex = position in dictionary array
+            candidates = dictCandidates.map((c, i) => ({ zhuyin: c.zhuyin, ivsIndex: i }));
         }
 
         return {

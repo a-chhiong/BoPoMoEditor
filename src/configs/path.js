@@ -44,6 +44,9 @@ export const FONTS = {
 export const ASSETS = {
     /** MOE Concise Dictionary Excel database (教育部國語辭典簡編本) */
     DICT_FILE: new URL('dict_concised_2014_20260325.xlsx', ASSETS_BASE).href,
+
+    /** Authoritative IVS character pronunciation map */
+    PHONIC_TABLE_Z: new URL('phonic_table_Z.txt', ASSETS_BASE).href,
 };
 
 // --- IVS font switcher map ---

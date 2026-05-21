@@ -93,24 +93,23 @@
                             <span class="desktop-text">僅中文</span>
                         </button>
                     </div>
-                    <!-- Mobile Custom Dropdown Selector -->
-                    <div class="custom-dropdown presentation-select-mobile" id="presentation-dropdown-container">
-                        <button class="editor-preset-trigger" id="presentation-dropdown-trigger" onclick="togglePresentationDropdown(event)" title="選擇顯示格式">
-                            <span id="presentation-mobile-trigger-label">中 + 注音</span>
-                            <svg viewBox="0 0 24 24" class="dropdown-chevron" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                        </button>
-                        <div class="custom-dropdown-menu" id="presentation-dropdown-menu">
-                            <div class="dropdown-item" onclick="selectPresentationMode('mode-zhu')">中 + 注音</div>
-                            <div class="dropdown-item" onclick="selectPresentationMode('mode-pin')">中 + 拼音</div>
-                            <div class="dropdown-item" onclick="selectPresentationMode('mode-zhu-only')">僅注音</div>
-                            <div class="dropdown-item" onclick="selectPresentationMode('mode-pin-only')">僅拼音</div>
-                            <div class="dropdown-item" onclick="selectPresentationMode('mode-han-only')">僅中文</div>
-                        </div>
+                </div>
+                <!-- Mobile Custom Dropdown Selector -->
+                <div class="custom-dropdown presentation-select-mobile" id="presentation-dropdown-container">
+                    <button class="editor-preset-trigger" id="presentation-dropdown-trigger" onclick="togglePresentationDropdown(event)" title="選擇顯示格式">
+                        <span id="presentation-mobile-trigger-label">中 + 注音</span>
+                        <svg viewBox="0 0 24 24" class="dropdown-chevron" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="custom-dropdown-menu" id="presentation-dropdown-menu">
+                        <div class="dropdown-item" onclick="selectPresentationMode('mode-zhu')">中 + 注音</div>
+                        <div class="dropdown-item" onclick="selectPresentationMode('mode-pin')">中 + 拼音</div>
+                        <div class="dropdown-item" onclick="selectPresentationMode('mode-zhu-only')">僅注音</div>
+                        <div class="dropdown-item" onclick="selectPresentationMode('mode-pin-only')">僅拼音</div>
+                        <div class="dropdown-item" onclick="selectPresentationMode('mode-han-only')">僅中文</div>
                     </div>
                 </div>
-
                 <!-- Toolbar Actions & Theme Toggle -->
                 <div class="header-actions">
                     <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="切換深淺色主題">
@@ -161,8 +160,7 @@
                 </div>
 
                 <div class="editor-body">
-                    <textarea class="main-textarea" id="main-editor"
-                        placeholder="在此輸入中文字，系統將自動解析注音與拼音，並支援點擊右側預覽進行微調偏音..." oninput="handleEditorInput()"></textarea>
+                    <textarea class="main-textarea" id="main-editor" placeholder="在此輸入中文字，系統將自動解析，並支援點擊右側預覽進行微調破音..." oninput="handleEditorInput()"></textarea>
                 </div>
 
                 <div class="editor-footer">
@@ -179,7 +177,7 @@
                 <div class="panel-header">
                     <div class="panel-header-title">
                         <!-- Preview Icon (Layout Grid) -->
-                        <svg viewBox="0 0 24 24" class="panel-icon" style="color: var(--success-color);" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" class="panel-icon" style="color: var(--primary-color);" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
                         </svg>
                         <h2 class="hide-on-mobile">預覽</h2>
@@ -217,11 +215,10 @@
                             <svg style="width:14px;height:14px;stroke:currentColor;" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" />
                             </svg>
-                            <span class="desktop-text">匯出原始碼</span>
+                            <span class="desktop-text">匯出</span>
                         </button>
                     </div>
                 </div>
-
 
                 <!-- Preview Area Viewer -->
                 <div class="preview-body">
@@ -233,24 +230,21 @@
                                     d="M12 20h9M3 20h4M5 4h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
                                 <path stroke="currentColor" stroke-width="1.5" d="M12 8v4m0 4h.01" />
                             </svg>
-                            <p>請在左側輸入框輸入中文字，此處將以極致美感的〇〇日報排版樣式呈現。</p>
+                            <p>請在左側輸入框輸入中文字。</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Preview Presentation Controls (Moved to Footer) -->
-                <div class="preview-presentation-toolbar" style="border-top: 1px solid var(--border-color); border-bottom: none; justify-content: flex-end;">
+                <div class="preview-presentation-toolbar" style="justify-content: flex-end;">
                     <!-- Layout export & audio triggers -->
                     <div class="presentation-actions">
-
                         <button class="action-icon-btn btn-audio" id="btn-tts-play" onclick="toggleTts()" title="播放朗讀">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                id="tts-play-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="tts-play-icon">
                                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
                             </svg>
                         </button>
-                        <button class="action-icon-btn btn-audio" id="btn-tts-stop" onclick="stopTts()" title="停止播放"
-                            disabled>
+                        <button class="action-icon-btn btn-audio" id="btn-tts-stop" onclick="stopTts()" title="停止播放" disabled>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
                             </svg>
@@ -258,7 +252,6 @@
                     </div>
                 </div>
             </section>
-
         </main>
 
         <!-- Candidate Drawer Bar (Always Fixed at the Bottom) -->
