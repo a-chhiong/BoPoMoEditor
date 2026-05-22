@@ -5,7 +5,6 @@
 import { BpmfEngine } from '../../../services/bpmf.js';
 import { MoeDictionary } from '../../../services/dict.js';
 import { IvsEngine } from '../../../services/ivs.js';
-import { RubyDatabase } from '../../../services/ruby.js';
 import { TtsEngine } from '../../../services/tts.js';
 import { IVS_FONT_MAP } from '../../../configs/path.js';
 
@@ -55,7 +54,7 @@ window.addEventListener('DOMContentLoaded', () => {
     
     if (overlay) {
         overlayTitle.innerText = '載入教育部國語字典中...';
-        overlaySubtitle.innerText = '正在即時下載並解析教育部國語辭典簡編本 Excel 資料庫...';
+        overlaySubtitle.innerText = '正在即時解析教育部國語辭典簡編本...';
         overlay.classList.remove('fade-out');
     }
     
@@ -74,15 +73,37 @@ window.addEventListener('DOMContentLoaded', () => {
                 textInput.value = PRESETS['preset-poyin'];
             }
             
-            // Load authoritative IVS character map from bpmfvs (non-blocking, graceful fallback)
-            IvsEngine.loadIVSMap().catch(() => {});
+            // Load authoritative IVS character map from bpmfvs
+            const ivsMapPromise = IvsEngine.loadIVSMap().catch(() => {});
 
-            // Register font face for default font on the fly immediately, then parse
-            const hf = IVS_FONT_MAP.huninn;
-            switchFont(hf.family, hf.path, hf.label, hf.size)
-                .then(() => {
+            // Update loading overlay text for font preloading
+            if (overlay) {
+                overlayTitle.innerText = '載入應用程式字型中...';
+                overlaySubtitle.innerText = '正在預載所有 IVS 專用注音字型，這可能需要一點時間...';
+            }
+
+            // Register and load all font faces on the fly immediately
+            const fontPromises = Object.values(IVS_FONT_MAP)
+                .filter(f => f.family !== 'System')
+                .map(async f => {
+                    try {
+                        if (!document.fonts.check(`1em ${f.family}`)) {
+                            const fontFace = new FontFace(f.family, `url(${f.path})`);
+                            document.fonts.add(fontFace);
+                            await fontFace.load();
+                        }
+                    } catch (e) {
+                        console.warn(`Failed to preload ${f.family}:`, e);
+                    }
+                });
+
+            Promise.all([...fontPromises, ivsMapPromise]).then(() => {
+                const hf = IVS_FONT_MAP.huninn;
+                // Switch to default font (will be instant since preloaded)
+                switchFont(hf.family, hf.path, hf.label, hf.size).then(() => {
                     handleLoadText();
                 });
+            });
         })
         .catch(err => {
             console.error('Failed to load or parse Excel dictionary:', err);
@@ -585,6 +606,8 @@ function selectWord(index) {
             const card = document.createElement('div');
             const isActive = (info.vsIndex === ivsIdx) || (ivsIdx === 0 && info.vsIndex === null && info.type === 'polyphonic');
             card.className = `poyin-option-card ${isActive ? 'active' : ''}`;
+            card.style.flex = '0 0 auto';
+            card.style.width = 'max-content';
             
             const zy = candidate.zhuyin;
             const py = BpmfEngine.zhuyinToPinyin(zy);

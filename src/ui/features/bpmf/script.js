@@ -5,6 +5,7 @@
 
 import { BpmfEngine } from '../../../services/bpmf.js';
 import { TtsEngine } from '../../../services/tts.js';
+import { PATHS } from '../../../configs/path.js';
 
 // --- Global Application State ---
 let parsedTokens = [];
@@ -36,8 +37,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const overlay = document.getElementById('loading-overlay');
     if (overlay) {
-        document.getElementById('loader-title').innerText = '載入官方字典中...';
-        document.getElementById('loader-subtitle').innerText = '正在即時解析教育部國語辭典簡編本';
+        document.getElementById('loader-title').innerText = '載入教育部國語字典中...';
+        document.getElementById('loader-subtitle').innerText = '正在即時解析教育部國語辭典簡編本...';
     }
 
     // Load default preset into input
@@ -46,8 +47,24 @@ window.addEventListener('DOMContentLoaded', () => {
     // Start fetching and parsing the dictionary asynchronously via BpmfEngine
     BpmfEngine.init()
         .then(() => {
+            if (overlay) {
+                document.getElementById('loader-title').innerText = '載入應用程式字型中...';
+                document.getElementById('loader-subtitle').innerText = '正在預載專用注音字型，這可能需要一點時間...';
+            }
+            
+            const fontPromises = [];
+            // Preload Ruby font
+            if (!document.fonts.check("1em 'BopomofoRuby'")) {
+                const rubyFont = new FontFace('BopomofoRuby', `url(${PATHS.FONTS.RUBY})`);
+                document.fonts.add(rubyFont);
+                fontPromises.push(rubyFont.load().catch(e => console.warn('Ruby font preload failed:', e)));
+            }
+
+            return Promise.all(fontPromises);
+        })
+        .then(() => {
             if (overlay) overlay.classList.add('fade-out');
-            handleEditorInput(); // Run first layout render with fully loaded memory dictionary
+            handleEditorInput(); // Run first layout render with fully loaded memory dictionary and fonts
         })
         .catch(err => {
             console.error('Failed to load or parse Excel dictionary:', err);
@@ -541,7 +558,7 @@ function openExportModal() {
 
     // 2. Fetch and Generate CSS Code on demand
     document.getElementById('export-css-code').value = '載入中...';
-    fetch('./bpmf.css')
+    fetch(PATHS.ASSETS.BPMF_CSS_EXPORT)
         .then(res => {
             if (!res.ok) throw new Error('HTTP error ' + res.status);
             return res.text();

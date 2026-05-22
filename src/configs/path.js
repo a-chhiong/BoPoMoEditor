@@ -47,6 +47,9 @@ export const ASSETS = {
 
     /** Authoritative IVS character pronunciation map */
     PHONIC_TABLE_Z: new URL('phonic_table_Z.txt', ASSETS_BASE).href,
+
+    /** Bopomofo UI standalone CSS for HTML export */
+    BPMF_CSS_EXPORT: new URL('bpmf.css', ASSETS_BASE).href,
 };
 
 // --- IVS font switcher map ---

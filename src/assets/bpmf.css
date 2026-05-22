@@ -1,9 +1,7 @@
-/* Bopomofo & Pinyin CSS Typography Rules */
-/* @font-face path governed by src/configs/path.js → FONTS.RUBY
-   Update both path.js AND the url() below if the font file is moved. */
+/* Bopomofo & Pinyin CSS Typography Rules for Exported Snippets */
 @font-face {
     font-family: 'BopomofoRuby';
-    src: url('/src/fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype'); /* FONTS.RUBY */
+    src: url('/src/fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype');
 }
 
 .mode-zhu bpmf {

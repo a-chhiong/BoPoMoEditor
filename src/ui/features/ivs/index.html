@@ -224,17 +224,6 @@
 
         <!-- Fixed bottom Drawer (Always sits/fixed at bottom) -->
         <footer class="candidate-bar-wrapper" id="candidate-bar">
-            <!-- Mobile drag handle + close button row -->
-            <div class="mobile-sheet-header">
-                <div class="mobile-drag-handle"></div>
-                <button class="candidate-mobile-close" id="candidate-mobile-close-btn" onclick="deselectWord()" title="關閉">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-
             <div class="candidate-container">
 
                 <!-- Placeholder when no word selected -->
@@ -264,6 +253,14 @@
                         </div>
                         <div class="profile-unicode" id="active-unicode-badge" style="font-family: 'Fira Code', monospace; font-size: 0.75rem;">U+548C</div>
                         
+                        <!-- Mobile Close Button -->
+                        <button class="candidate-mobile-close" id="candidate-mobile-close-btn" onclick="deselectWord()" title="關閉">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px;">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+
                         <div class="profile-special-actions hide-on-mobile">
                             <button class="btn-special" id="btn-action-blank" onclick="applySpecialMode('blank')">注音留白 (E01E0)</button>
                             <button class="btn-special" id="btn-action-brackets" onclick="applySpecialMode('brackets')">注音填空 (留空引導)</button>
@@ -274,7 +271,14 @@
                     <div class="candidate-col phonetic-list-section">
                         <!-- Standard Polyphonic Readings -->
                         <div id="section-standard-readings" style="width: 100%; height: 100%;">
-                            <h3 class="col-title">標準詞彙讀音 (IVS 選擇)</h3>
+                            <h3 class="col-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    style="width:14px;height:14px;margin-right:4px;">
+                                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                                讀音候選庫 (點擊即時更換)
+                            </h3>
                             <div class="poyin-options-grid" id="poyin-options-container">
                                 <!-- Populated dynamically -->
                             </div>
@@ -283,7 +287,7 @@
                         <!-- Generic Probe for Unrecognized Words -->
                         <div id="section-generic-probe" style="display:none; width: 100%; height: 100%;">
                             <h3 class="col-title">通用 IVS 字形探針 (VS17 - VS26)</h3>
-                            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;" id="probe-buttons-container">
+                            <div id="probe-buttons-container">
                                 <!-- Populated dynamically -->
                             </div>
                         </div>
