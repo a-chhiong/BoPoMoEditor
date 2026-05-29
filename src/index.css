@@ -753,7 +753,7 @@ body.dark-theme .btn-export-highlight {
 /* 2. Chinese + Pinyin (Top horizontal side annotation) */
 .mode-pin bpmf {
     font-family: var(--font-han) !important;
-    padding-top: 0.32em;
+    padding-top: 0.22em;
 }
 .mode-pin bpmf::before {
     content: attr(pinyin);
@@ -761,7 +761,7 @@ body.dark-theme .btn-export-highlight {
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 0;
+    top: 0.04em;
     right: -1em;
     left: -1em;
     font-family: var(--font-ui) !important;
