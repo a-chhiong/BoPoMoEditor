@@ -99,8 +99,15 @@ export const BpmfFeature = {
             bpmfSpan.setAttribute('pinyin', tokenObj.pinyin || '');
             bpmfSpan.setAttribute('data-idx', idx);
 
-            if (tokenObj.special) bpmfSpan.classList.add(tokenObj.special);
-            else if (tokenObj.isCustom) bpmfSpan.classList.add('custom-modified');
+            const candidates = BpmfEngine.getCandidates(tokenObj.char);
+            const isPoly = candidates.length > 1;
+
+            if (tokenObj.special) {
+                bpmfSpan.classList.add(tokenObj.special);
+            } else {
+                if (tokenObj.isCustom) bpmfSpan.classList.add('custom-modified');
+                else if (isPoly) bpmfSpan.classList.add('polyphonic');
+            }
 
             if (selectedTokenIndex === idx) bpmfSpan.classList.add('selected');
 

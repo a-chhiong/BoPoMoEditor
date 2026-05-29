@@ -827,6 +827,14 @@ bpmf.brackets::after {
     font-size: 0.35em !important;
     color: var(--accent-purple) !important;
 }
+bpmf.polyphonic {
+    background-color: var(--color-polyphonic);
+    border-color: rgba(65, 187, 176, 0.3);
+}
+bpmf.polyphonic.selected {
+    border-color: var(--color-poly-border);
+}
+
 bpmf.custom-modified {
     border-color: rgba(65, 187, 176, 0.4) !important;
     background-color: var(--primary-light) !important;
