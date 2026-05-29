@@ -7,8 +7,9 @@
 @import url('../public/assets/bpmf.css');
 
 /* --- Font Definitions --- */
-/* NOTE: Use relative paths (../fonts/) so they resolve correctly from /BoPoMoEditor/assets/index.css
-   on GitHub Pages. Absolute paths (/fonts/) would resolve to the domain root and 404. */
+/* NOTE: Use relative paths (../fonts/) so they resolve correctly in both contexts:
+   - Vite build: CSS at /BoPoMoEditor/assets/index.css → ../fonts/ = /BoPoMoEditor/fonts/ ✓
+   - Raw GitHub Pages serve: CSS at /BoPoMoEditor/src/style.css → ../fonts/ = /BoPoMoEditor/fonts/ ✓ */
 @font-face {
     font-family: 'BopomofoRuby';
     src: url('../fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype');
