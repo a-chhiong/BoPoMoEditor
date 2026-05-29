@@ -753,7 +753,7 @@ body.dark-theme .btn-export-highlight {
 /* 2. Chinese + Pinyin (Top horizontal side annotation) */
 .mode-pin bpmf {
     font-family: var(--font-han) !important;
-    padding-top: 0.45em;
+    padding-top: 0.32em;
 }
 .mode-pin bpmf::before {
     content: attr(pinyin);
@@ -762,14 +762,15 @@ body.dark-theme .btn-export-highlight {
     justify-content: center;
     position: absolute;
     top: 0;
-    right: -0.5em;
-    left: -0.5em;
+    right: -1em;
+    left: -1em;
     font-family: var(--font-ui) !important;
-    font-size: 0.38em;
+    font-size: 0.46em;
     font-weight: 700;
     line-height: 1;
     color: var(--text-main);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
 }
 
 /* 3. Zhuyin only */
