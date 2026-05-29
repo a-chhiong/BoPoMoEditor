@@ -730,7 +730,7 @@ body.dark-theme .btn-export-highlight {
 
 /* 1. Chinese + Zhuyin (Right vertical side annotation) */
 .mode-zhu bpmf {
-    padding-right: 0.5em;
+    padding-right: 0.6em;
 }
 .mode-zhu bpmf::after {
     content: attr(zhuyin);
@@ -739,12 +739,12 @@ body.dark-theme .btn-export-highlight {
     align-items: center;
     justify-content: center;
     position: absolute;
-    right: -1.5em;
-    left: 1em;
+    right: -1.6em;
+    left: 1.05em;
     top: 0;
     bottom: 0;
     font-family: 'BopomofoRuby', sans-serif;
-    font-size: 0.30em;
+    font-size: 0.38em;
     text-orientation: upright;
     line-height: 1;
     color: var(--text-main);
@@ -762,13 +762,14 @@ body.dark-theme .btn-export-highlight {
     justify-content: center;
     position: absolute;
     top: 0;
-    right: 0;
-    left: 0;
+    right: -0.5em;
+    left: -0.5em;
     font-family: var(--font-ui) !important;
-    font-size: 0.48em;
-    font-weight: 600;
+    font-size: 0.38em;
+    font-weight: 700;
     line-height: 1;
     color: var(--text-main);
+    letter-spacing: 0.05em;
 }
 
 /* 3. Zhuyin only */
