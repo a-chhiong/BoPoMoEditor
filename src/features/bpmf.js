@@ -21,6 +21,12 @@ export const BpmfFeature = {
     onActivate(plainText, overrides) {
         window.activeFont = 'BopomofoRuby';
         
+        // Clear inline font-family style (set by IVS mode) so CSS takes over
+        const previewContainer = document.getElementById('live-renderer');
+        if (previewContainer) {
+            previewContainer.style.fontFamily = '';
+        }
+        
         // Reset selected index
         selectedTokenIndex = null;
         this.render(plainText, overrides);
@@ -57,6 +63,7 @@ export const BpmfFeature = {
 
     renderPreview() {
         const previewContainer = document.getElementById('live-renderer');
+        previewContainer.style.fontFamily = ''; // Clear inline font-family to let CSS take over
         previewContainer.innerHTML = '';
         previewContainer.className = `rendered-preview-container ${presentationMode} correction-enabled`;
 
