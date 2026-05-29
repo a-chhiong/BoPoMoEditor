@@ -3,6 +3,9 @@
    Includes Layout, Typography, Themes, CSS-Ruby Positioners, and RWD Overrides
    ========================================================================== */
 
+/* Import standalone bpmf typography rules (also used by HTML export) */
+@import url('../public/assets/bpmf.css');
+
 /* --- Font Definitions --- */
 @font-face {
     font-family: 'BopomofoRuby';
@@ -736,6 +739,32 @@ body.dark-theme .btn-export-highlight {
     background-color: var(--annotated-active-bg);
     border-color: var(--annotated-active-border);
     box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* Workspace colour overrides (bpmf.css uses plain sans-serif/colours; these apply themed values) */
+.mode-zhu bpmf::after {
+    color: var(--text-main);
+}
+.mode-zhu-only bpmf::after {
+    color: var(--text-main);
+}
+.mode-pin bpmf {
+    font-family: var(--font-han) !important;
+}
+.mode-pin bpmf::before {
+    font-family: var(--font-ui) !important;
+    color: var(--text-main);
+}
+.mode-pin-only bpmf::before {
+    font-family: var(--font-ui);
+    color: var(--text-main);
+}
+.mode-zhu-only bpmf,
+.mode-pin-only bpmf {
+    cursor: pointer;
+}
+bpmf.brackets::after {
+    color: var(--accent-purple) !important;
 }
 
 bpmf.polyphonic .bpmf-char {
