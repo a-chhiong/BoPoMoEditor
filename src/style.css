@@ -711,21 +711,31 @@ body.dark-theme .btn-export-highlight {
     display: inline-block;
     position: relative;
     margin: 0 4px;
-    border: 2px solid transparent;
-    border-radius: 8px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 }
-.rendered-preview-container bpmf:hover {
+.rendered-preview-container bpmf .bpmf-char {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rendered-preview-container bpmf:hover .bpmf-char {
     background-color: var(--annotated-hover-bg);
     border-color: rgba(65, 187, 176, 0.15);
 }
 .rendered-preview-container bpmf.selected {
+    transform: translateY(-2px);
+    z-index: 10;
+}
+.rendered-preview-container bpmf.selected .bpmf-char {
     background-color: var(--annotated-active-bg);
     border-color: var(--annotated-active-border);
     box-shadow: 0 4px 12px var(--shadow-color);
-    transform: translateY(-2px);
-    z-index: 10;
 }
 
 /* 1. Chinese + Zhuyin (Right vertical side annotation) */
@@ -827,19 +837,19 @@ bpmf.brackets::after {
     font-size: 0.35em !important;
     color: var(--accent-purple) !important;
 }
-bpmf.polyphonic {
+bpmf.polyphonic .bpmf-char {
     background-color: var(--color-polyphonic);
     border-color: rgba(65, 187, 176, 0.3);
 }
-bpmf.polyphonic.selected {
+bpmf.polyphonic.selected .bpmf-char {
     border-color: var(--color-poly-border);
 }
 
-bpmf.custom-modified {
+bpmf.custom-modified .bpmf-char {
     border-color: rgba(65, 187, 176, 0.4) !important;
     background-color: var(--primary-light) !important;
 }
-body.dark-theme bpmf.custom-modified {
+body.dark-theme bpmf.custom-modified .bpmf-char {
     background-color: rgba(65, 187, 176, 0.1) !important;
 }
 
@@ -905,24 +915,28 @@ body.dark-theme bpmf.custom-modified {
 }
 
 /* --- TTS Highlight Styles (Both Modes) --- */
-bpmf.tts-pronouncing,
+bpmf.tts-pronouncing .bpmf-char,
 .render-token.tts-pronouncing {
     background-color: rgba(65, 187, 176, 0.25) !important;
     border-color: var(--primary-color) !important;
     box-shadow: 0 0 10px rgba(65, 187, 176, 0.4) !important;
+}
+bpmf.tts-pronouncing {
     transform: translateY(-2px) !important;
 }
-body.dark-theme bpmf.tts-pronouncing,
+body.dark-theme bpmf.tts-pronouncing .bpmf-char,
 body.dark-theme .render-token.tts-pronouncing {
     background-color: rgba(82, 209, 197, 0.3) !important;
     border-color: var(--primary-hover) !important;
     box-shadow: 0 0 12px rgba(82, 209, 197, 0.45) !important;
 }
-.rendered-preview-container.tts-paused bpmf.tts-pronouncing,
+.rendered-preview-container.tts-paused bpmf.tts-pronouncing .bpmf-char,
 .rendered-preview-container.tts-paused .render-token.tts-pronouncing {
     background-color: rgba(65, 187, 176, 0.08) !important;
     border-color: rgba(65, 187, 176, 0.35) !important;
     box-shadow: none !important;
+}
+.rendered-preview-container.tts-paused bpmf.tts-pronouncing {
     transform: none !important;
 }
 

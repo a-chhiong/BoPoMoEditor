@@ -94,7 +94,7 @@ export const BpmfFeature = {
             }
 
             const bpmfSpan = document.createElement('bpmf');
-            bpmfSpan.innerText = tokenObj.char;
+            bpmfSpan.innerHTML = `<span class="bpmf-char">${tokenObj.char}</span>`;
             bpmfSpan.setAttribute('zhuyin', tokenObj.zhuyin || '');
             bpmfSpan.setAttribute('pinyin', tokenObj.pinyin || '');
             bpmfSpan.setAttribute('data-idx', idx);

@@ -41,7 +41,7 @@ BoPoMoEditor/
 │   ├── configs/            # 全域路徑設定 (path.js)
 │   ├── services/           # 核心解析引擎 (dict.js, tokenizer.js, bpmf.js, ivs.js, tts.js)
 │   ├── features/           # UI 特色控制器 (bpmf.js, ivs.js)
-│   ├── index.css           # 統一設計系統樣式表 (含亮/暗色主題、響應式 RWD 佈局)
+│   ├── style.css           # 統一設計系統樣式表 (含亮/暗色主題、響應式 RWD 佈局)
 │   └── main.js             # SPA 路由管理、狀態同步與載入器入口
 ├── index.html              # 主 HTML 入口點
 ├── package.json            # 專案套件配置
