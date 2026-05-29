@@ -17,7 +17,10 @@
 
 // --- Base URL origins (resolved from the web server document root) ---
 
-const BASE_URL = import.meta.env.BASE_URL;
+// NOTE: Vite statically replaces import.meta.env.BASE_URL at build time.
+// The fallback to '/' ensures this file gracefully handles any edge case where
+// it is evaluated outside of a Vite-processed context.
+const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
 
 /** Absolute base path to the fonts directory (served from public root) */
 const FONTS_BASE = new URL('fonts/', new URL(BASE_URL, window.location.origin)).href;

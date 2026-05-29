@@ -7,23 +7,25 @@
 @import url('../public/assets/bpmf.css');
 
 /* --- Font Definitions --- */
+/* NOTE: Use relative paths (../fonts/) so they resolve correctly from /BoPoMoEditor/assets/index.css
+   on GitHub Pages. Absolute paths (/fonts/) would resolve to the domain root and 404. */
 @font-face {
     font-family: 'BopomofoRuby';
-    src: url('/fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype');
+    src: url('../fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
 @font-face {
     font-family: 'BpmfHuninn';
-    src: url('/fonts/BpmfHuninn-Regular.ttf') format('truetype');
+    src: url('../fonts/BpmfHuninn-Regular.ttf') format('truetype');
 }
 @font-face {
     font-family: 'BpmfIansui';
-    src: url('/fonts/BpmfIansui-Regular.ttf') format('truetype');
+    src: url('../fonts/BpmfIansui-Regular.ttf') format('truetype');
 }
 @font-face {
     font-family: 'BpmfZihiKaiStd';
-    src: url('/fonts/BpmfZihiKaiStd-Regular.ttf') format('truetype');
+    src: url('../fonts/BpmfZihiKaiStd-Regular.ttf') format('truetype');
 }
 
 /* --- Theme CSS Variables --- */

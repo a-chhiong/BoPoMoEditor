@@ -3,6 +3,7 @@
    Wrapped as a reusable ES6 Export Class
    ========================================================================== */
 
+import * as XLSX from 'xlsx';
 import { ASSETS } from '../configs/path.js';
 
 export class MoeDictionary {
@@ -29,17 +30,14 @@ export class MoeDictionary {
             return { phrases: MoeDictionary.phrases, singleChars: MoeDictionary.singleChars };
         }
 
-        // Wait until window.XLSX is loaded from CDN
-        await MoeDictionary._waitForXLSX();
-
         try {
             const res = await fetch(xlsxPath);
             const buffer = await res.arrayBuffer();
 
             // Parse binary Excel data on the fly
-            const workbook = window.XLSX.read(buffer, { type: 'array' });
+            const workbook = XLSX.read(buffer, { type: 'array' });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const data = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
+            const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
             const phrases = MoeDictionary.phrases = {};
             const singleChars = MoeDictionary.singleChars = {};
@@ -175,23 +173,4 @@ export class MoeDictionary {
         }
     }
 
-    /**
-     * Polls to wait for XLSX to load from CDN.
-     * @private
-     * @returns {Promise<void>}
-     */
-    static _waitForXLSX() {
-        return new Promise((resolve) => {
-            if (window.XLSX) {
-                resolve();
-                return;
-            }
-            const interval = setInterval(() => {
-                if (window.XLSX) {
-                    clearInterval(interval);
-                    resolve();
-                }
-            }, 50);
-        });
-    }
 }
