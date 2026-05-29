@@ -17,11 +17,14 @@
 
 // --- Base URL origins (resolved from the web server document root) ---
 
-/** Absolute base path to the fonts directory (served from root) */
-const FONTS_BASE = new URL('../fonts/', import.meta.url).href;
+const BASE_URL = import.meta.env.BASE_URL;
 
-/** Absolute base path to the assets directory (served from root) */
-const ASSETS_BASE = new URL('../assets/', import.meta.url).href;
+/** Absolute base path to the fonts directory (served from public root) */
+const FONTS_BASE = new URL('fonts/', new URL(BASE_URL, window.location.origin)).href;
+
+/** Absolute base path to the assets directory (served from public root) */
+const ASSETS_BASE = new URL('assets/', new URL(BASE_URL, window.location.origin)).href;
+
 
 // --- Font file paths ---
 

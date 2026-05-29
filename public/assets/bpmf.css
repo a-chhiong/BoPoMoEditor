@@ -1,0 +1,51 @@
+/* Bopomofo & Pinyin CSS Typography Rules for Exported Snippets */
+@font-face {
+    font-family: 'BopomofoRuby';
+    src: url('/src/fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype');
+}
+
+.mode-zhu bpmf {
+    position: relative;
+    display: inline-block;
+    padding-right: 0.45em;
+    font-family: inherit;
+}
+
+.mode-zhu bpmf::after {
+    content: attr(zhuyin);
+    writing-mode: vertical-rl;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: -1.25em;
+    left: 1.05em;
+    top: 0;
+    bottom: 0;
+    font-family: 'BopomofoRuby', sans-serif;
+    font-size: 0.31em;
+    text-orientation: upright;
+    line-height: 1.05;
+    letter-spacing: -2px;
+}
+
+.mode-pin bpmf {
+    position: relative;
+    display: inline-block;
+    padding-top: 0.45em;
+}
+
+.mode-pin bpmf::before {
+    content: attr(pinyin);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0.05em;
+    right: 0;
+    left: 0;
+    font-family: sans-serif;
+    font-size: 0.35em;
+    font-weight: 600;
+    line-height: 1;
+}

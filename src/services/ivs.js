@@ -96,9 +96,10 @@ export class IvsEngine {
      * and automatically pre-selects and appends the matching variation selector for polyphonic characters.
      * Preserves any pre-existing variation selections.
      * @param {string} rawText 
+     * @param {Object} [manualOverrides]
      * @returns {Array<string>}
      */
-    static alignIVSText(rawText) {
+    static alignIVSText(rawText, manualOverrides = {}) {
         const rawTokens = IvsEngine.parseIVSText(rawText);
         
         // 1. Reconstruct plain text by stripping variation selectors
@@ -108,8 +109,9 @@ export class IvsEngine {
             plainText += parts[0];
         });
         
-        // 2. Tokenize contextually using the BMM MoE-dictionary engine
-        const contextTokens = Tokenizer.tokenize(plainText);
+        // 2. Tokenize contextually using the BMM MoE-dictionary engine with overrides
+        const contextTokens = Tokenizer.tokenize(plainText, manualOverrides);
+
         
         // 3. Align tokens and automatically assign variation selectors
         const alignedTokens = rawTokens.map((rawToken, idx) => {
