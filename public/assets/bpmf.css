@@ -1,16 +1,24 @@
-/* Bopomofo & Pinyin CSS Typography Rules for Exported Snippets */
+/* ==========================================================================
+   Bopomofo & Pinyin CSS Typography Rules for Exported Snippets
+   Core layout rules for <bpmf> elements and ruby modes.
+   ========================================================================== */
+
 @font-face {
     font-family: 'BopomofoRuby';
-    src: url('/src/fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype');
+    src: url('../fonts/BopomofoRuby1909-v1-Regular.ttf') format('truetype');
 }
 
-.mode-zhu bpmf {
-    position: relative;
+/* Base bpmf styling */
+bpmf {
     display: inline-block;
-    padding-right: 0.45em;
+    position: relative;
     font-family: inherit;
 }
 
+/* 1. Chinese + Zhuyin (Right vertical side annotation) */
+.mode-zhu bpmf {
+    padding-right: 0.6em;
+}
 .mode-zhu bpmf::after {
     content: attr(zhuyin);
     writing-mode: vertical-rl;
@@ -18,34 +26,84 @@
     align-items: center;
     justify-content: center;
     position: absolute;
-    right: -1.25em;
+    right: -1.6em;
     left: 1.05em;
     top: 0;
     bottom: 0;
     font-family: 'BopomofoRuby', sans-serif;
-    font-size: 0.31em;
+    font-size: 0.38em;
     text-orientation: upright;
-    line-height: 1.05;
-    letter-spacing: -2px;
+    line-height: 1;
 }
 
+/* 2. Chinese + Pinyin (Top horizontal side annotation) */
 .mode-pin bpmf {
-    position: relative;
-    display: inline-block;
-    padding-top: 0.45em;
+    padding-top: 0.22em;
 }
-
 .mode-pin bpmf::before {
     content: attr(pinyin);
     display: flex;
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 0.05em;
-    right: 0;
-    left: 0;
+    top: 0.04em;
+    right: -1em;
+    left: -1em;
     font-family: sans-serif;
-    font-size: 0.35em;
-    font-weight: 600;
+    font-size: 0.46em;
+    font-weight: 700;
     line-height: 1;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+/* 3. Zhuyin only */
+.mode-zhu-only bpmf {
+    writing-mode: vertical-rl;
+    font-size: 0 !important;
+    color: transparent !important;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.mode-zhu-only bpmf::after {
+    content: attr(zhuyin);
+    font-family: 'BopomofoRuby', sans-serif;
+    font-size: 20px;
+    text-orientation: upright;
+}
+
+/* 4. Pinyin only */
+.mode-pin-only bpmf {
+    font-size: 0 !important;
+    color: transparent !important;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.mode-pin-only bpmf::before {
+    content: attr(pinyin);
+    font-family: sans-serif;
+    font-size: 35px;
+}
+
+/* 5. Chinese characters only */
+.mode-han-only bpmf {
+    padding-right: 0;
+    padding-top: 0;
+}
+.mode-han-only bpmf::after,
+.mode-han-only bpmf::before {
+    display: none !important;
+}
+
+/* Specific special classes for blank/brackets in Ruby mode */
+bpmf.blank::after,
+bpmf.blank::before {
+    content: "" !important;
+    display: none !important;
+}
+bpmf.brackets::after {
+    content: "（　）" !important;
+    writing-mode: vertical-rl !important;
+    font-size: 0.35em !important;
+    color: #9d4edd !important;
 }
