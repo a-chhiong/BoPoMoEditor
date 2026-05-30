@@ -115,7 +115,6 @@ body.dark-theme {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 body {
@@ -739,7 +738,6 @@ body.dark-theme .btn-export-highlight {
     margin: 0 4px;
     border: 2px solid transparent;
     border-radius: 8px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 }
 /* .bpmf-char is a semantic wrapper; no visual border/background here */
@@ -813,7 +811,6 @@ body.dark-theme bpmf.custom-modified {
     padding: 0 4px;
     margin: 0 2px;
     border: 2px solid transparent;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .rendered-preview-container .render-token:hover {
     background-color: var(--annotated-hover-bg);
