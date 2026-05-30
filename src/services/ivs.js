@@ -244,33 +244,6 @@ export class IvsEngine {
         };
     }
 
-    /**
-     * Searches the dynamic dictionary compound database for up to `limit` example phrases
-     * matching the specified base character and target pronunciation.
-     * @param {string} char 
-     * @param {string} zhuyin 
-     * @param {number} limit 
-     * @returns {string}
-     */
-    static getExamplePhrases(char, zhuyin, limit = 3) {
-        const examples = [];
-        if (!MoeDictionary.phrases) return '';
-        
-        for (const [phrase, zys] of Object.entries(MoeDictionary.phrases)) {
-            if (phrase.includes(char)) {
-                for (let i = 0; i < phrase.length; i++) {
-                    if (phrase[i] === char && zys[i] === zhuyin) {
-                        examples.push(phrase);
-                        if (examples.length >= limit) {
-                            return examples.join('、');
-                        }
-                    }
-                }
-            }
-        }
-        return examples.join('、');
-    }
-
     static RUBY_MAPPING = {
         "ㄚ": 61441, "ㄚˊ": 61442, "ㄚ˙": 61443,
         "ㄞ": 61444, "ㄞˊ": 61445, "ㄞˇ": 61446, "ㄞˋ": 61447,

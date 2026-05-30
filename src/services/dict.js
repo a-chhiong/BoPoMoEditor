@@ -115,7 +115,7 @@ export class MoeDictionary {
             }
             Object.assign(phrases, subPhrases);
 
-            // Clean up temporary rank properties to keep TAIWAN_PHRASES clean
+            // Clean up temporary rank properties
             for (const key in phrases) {
                 delete phrases[key]._rank;
             }
@@ -162,10 +162,6 @@ export class MoeDictionary {
 
 
             MoeDictionary.isLoaded = true;
-
-            // Bind to window for backwards compatibility with legacy global scope accesses
-            window.TAIWAN_PHRASES = phrases;
-            window.TAIWAN_SINGLE_CHARS = singleChars;
 
             return { phrases, singleChars };
         } catch (err) {

@@ -13,4 +13,8 @@ export class ToastController {
       this.host.toastShow = false;
     }, 2200);
   }
+
+  hostDisconnected() {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+  }
 }

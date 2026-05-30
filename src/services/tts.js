@@ -154,6 +154,7 @@ export class TtsEngine {
             clearInterval(this.timer);
             this.timer = null;
         }
+        window.activeUtterance = null;
         if (this.onClearHighlight) this.onClearHighlight();
         this.setState('stopped');
     }
