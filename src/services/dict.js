@@ -5,6 +5,7 @@
 
 import * as XLSX from 'xlsx';
 import { ASSETS } from '../configs/path.js';
+import { cachedFetch } from '../util/cache-handler.js';
 
 export class MoeDictionary {
 
@@ -31,7 +32,7 @@ export class MoeDictionary {
         }
 
         try {
-            const res = await fetch(xlsxPath);
+            const res = await cachedFetch(xlsxPath);
             const buffer = await res.arrayBuffer();
 
             // Parse binary Excel data on the fly

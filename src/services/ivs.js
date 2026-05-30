@@ -6,6 +6,7 @@
 import { MoeDictionary } from './dict.js';
 import { Tokenizer } from './tokenizer.js';
 import { ASSETS } from '../configs/path.js';
+import { cachedFetch } from '../util/cache-handler.js';
 
 export class IvsEngine {
 
@@ -29,7 +30,7 @@ export class IvsEngine {
     static async loadIVSMap() {
         if (IvsEngine.ivsMapLoaded) return;
         try {
-            const res = await fetch(IvsEngine.IVS_TABLE_URL);
+            const res = await cachedFetch(IvsEngine.IVS_TABLE_URL);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const text = await res.text();
             const map = new Map();

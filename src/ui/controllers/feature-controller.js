@@ -4,6 +4,7 @@ import { TtsEngine } from '../../services/tts.js';
 import { PATHS, IVS_FONT_MAP } from '../../configs/path.js';
 import { ManualOverrides } from '../../util/manual-overrides.js';
 import { PRESETS } from '../../configs/static.js';
+import { cachedFetch } from '../../util/cache-handler.js';
 
 export class FeatureController {
   constructor(host) {
@@ -36,19 +37,27 @@ export class FeatureController {
       const ivsMapPromise = IvsEngine.loadIVSMap().catch(() => { });
       const fontPromises = [];
 
+      const loadFont = async (family, path, label) => {
+        try {
+          const res = await cachedFetch(path);
+          const buf = await res.arrayBuffer();
+          const fontFace = new FontFace(family, buf);
+          document.fonts.add(fontFace);
+          await fontFace.load();
+        } catch (e) {
+          console.warn(`${label || family} preload failed:`, e);
+        }
+      };
+
       if (!document.fonts.check("1em 'BopomofoRuby'")) {
-        const rubyFont = new FontFace('BopomofoRuby', `url(${PATHS.FONTS.RUBY})`);
-        document.fonts.add(rubyFont);
-        fontPromises.push(rubyFont.load().catch((e) => console.warn('Ruby font preload failed:', e)));
+        fontPromises.push(loadFont('BopomofoRuby', PATHS.FONTS.RUBY, 'Ruby font'));
       }
 
       Object.values(IVS_FONT_MAP)
         .filter((f) => f.family !== 'System')
         .forEach((f) => {
           if (!document.fonts.check(`1em ${f.family}`)) {
-            const fontFace = new FontFace(f.family, `url(${f.path})`);
-            document.fonts.add(fontFace);
-            fontPromises.push(fontFace.load().catch((e) => console.warn(`${f.family} preload failed:`, e)));
+            fontPromises.push(loadFont(f.family, f.path, f.label));
           }
         });
 
@@ -427,7 +436,7 @@ export class FeatureController {
 
     // 2. Fetch CSS
     this.host.exportCssCode = '載入中...';
-    fetch(PATHS.ASSETS.BPMF_CSS_EXPORT)
+    cachedFetch(PATHS.ASSETS.BPMF_CSS_EXPORT)
       .then(res => {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.text();
@@ -486,9 +495,11 @@ export class FeatureController {
 
     try {
       if (!document.fonts.check(`1em ${fontName}`)) {
-        const fontFace = new FontFace(fontName, `url(${fontUrl})`);
-        await fontFace.load();
+        const res = await cachedFetch(fontUrl);
+        const buf = await res.arrayBuffer();
+        const fontFace = new FontFace(fontName, buf);
         document.fonts.add(fontFace);
+        await fontFace.load();
       }
       this.host.showToast(`字型載入成功！`);
     } catch (err) {
