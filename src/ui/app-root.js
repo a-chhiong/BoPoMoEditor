@@ -32,6 +32,7 @@ export class BopomoEditorApp extends LitElement {
     overlayVisible: { type: Boolean },
     overlayTitle: { type: String },
     overlaySubtitle: { type: String },
+    overlayProgress: { type: Number },
     currentText: { type: String },
     charCount: { type: Number },
     ttsState: { type: String },
@@ -83,6 +84,7 @@ export class BopomoEditorApp extends LitElement {
     this.overlayVisible = true;
     this.overlayTitle = '載入教育部國語字典中...';
     this.overlaySubtitle = '正在即時解析教育部國語辭典簡編本...';
+    this.overlayProgress = 0;
     this.currentText = PRESETS['preset-poyin'];
     this.charCount = this.computeCharacterCount(this.currentText);
     this.ttsState = 'stopped';
@@ -324,6 +326,7 @@ export class BopomoEditorApp extends LitElement {
         .visible=${this.overlayVisible}
         .title=${this.overlayTitle}
         .subtitle=${this.overlaySubtitle}
+        .progress=${this.overlayProgress}
       ></loading-overlay>
 
       <div class="app-wrapper">

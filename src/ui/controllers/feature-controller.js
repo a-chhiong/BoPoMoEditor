@@ -24,22 +24,56 @@ export class FeatureController {
     if (previewPanel) await previewPanel.updateComplete;
     if (previewRenderer) await previewRenderer.updateComplete;
 
+    const fontWeights = {
+      [PATHS.ASSETS.DICT_FILE]: 7040947,
+      [PATHS.ASSETS.PHONIC_TABLE_Z]: 432636,
+      [PATHS.FONTS.RUBY]: 3745000,
+      [PATHS.FONTS.HUNINN]: 4800000,
+      [PATHS.FONTS.IANSUI]: 7700000,
+      [PATHS.FONTS.ZIHIKAI]: 17500000
+    };
+
+    this.downloads = {};
+    this.host.overlayProgress = 0;
+
+    // Register downloads we plan to perform
+    this.downloads[PATHS.ASSETS.DICT_FILE] = { loaded: 0, total: fontWeights[PATHS.ASSETS.DICT_FILE] };
+    this.downloads[PATHS.ASSETS.PHONIC_TABLE_Z] = { loaded: 0, total: fontWeights[PATHS.ASSETS.PHONIC_TABLE_Z] };
+
+    if (!document.fonts.check("1em 'BopomofoRuby'")) {
+      this.downloads[PATHS.FONTS.RUBY] = { loaded: 0, total: fontWeights[PATHS.FONTS.RUBY] };
+    }
+    Object.values(IVS_FONT_MAP)
+      .filter((f) => f.family !== 'System')
+      .forEach((f) => {
+        if (!document.fonts.check(`1em ${f.family}`)) {
+          this.downloads[f.path] = { loaded: 0, total: fontWeights[f.path] };
+        }
+      });
+
     try {
       this.host.overlayTitle = '載入教育部國語字典中...';
       this.host.overlaySubtitle = '正在即時解析教育部國語辭典簡編本...';
       this.host.overlayVisible = true;
 
-      await BpmfEngine.init();
+      await BpmfEngine.init(undefined, {
+        onProgress: (loaded, total) => this.updateDownloadProgress(PATHS.ASSETS.DICT_FILE, loaded, total)
+      });
 
       this.host.overlayTitle = '載入排版字型中...';
       this.host.overlaySubtitle = '正在預載專用注音字型，這可能需要一點時間...';
 
-      const ivsMapPromise = IvsEngine.loadIVSMap().catch(() => { });
+      const ivsMapPromise = IvsEngine.loadIVSMap({
+        onProgress: (loaded, total) => this.updateDownloadProgress(PATHS.ASSETS.PHONIC_TABLE_Z, loaded, total)
+      }).catch(() => { });
+
       const fontPromises = [];
 
       const loadFont = async (family, path, label) => {
         try {
-          const res = await cachedFetch(path);
+          const res = await cachedFetch(path, {
+            onProgress: (loaded, total) => this.updateDownloadProgress(path, loaded, total)
+          });
           const buf = await res.arrayBuffer();
           const fontFace = new FontFace(family, buf);
           document.fonts.add(fontFace);
@@ -489,13 +523,26 @@ export class FeatureController {
       return;
     }
 
+    const fontWeights = {
+      [PATHS.FONTS.RUBY]: 3745000,
+      [PATHS.FONTS.HUNINN]: 4800000,
+      [PATHS.FONTS.IANSUI]: 7700000,
+      [PATHS.FONTS.ZIHIKAI]: 17500000
+    };
+
+    this.downloads = {};
+    this.host.overlayProgress = 0;
+    this.downloads[fontUrl] = { loaded: 0, total: fontWeights[fontUrl] || 1000000 };
+
     this.host.overlayTitle = `載入 ${displayName} 中...`;
     this.host.overlaySubtitle = `正在本機載入字型檔案 (${size}) 並重新渲染...`;
     this.host.overlayVisible = true;
 
     try {
       if (!document.fonts.check(`1em ${fontName}`)) {
-        const res = await cachedFetch(fontUrl);
+        const res = await cachedFetch(fontUrl, {
+          onProgress: (loaded, total) => this.updateDownloadProgress(fontUrl, loaded, total)
+        });
         const buf = await res.arrayBuffer();
         const fontFace = new FontFace(fontName, buf);
         document.fonts.add(fontFace);
@@ -508,6 +555,23 @@ export class FeatureController {
     } finally {
       this.host.overlayVisible = false;
     }
+  }
+
+  updateDownloadProgress(url, loaded, total) {
+    if (!this.downloads) {
+      this.downloads = {};
+    }
+    this.downloads[url] = { loaded, total: total || 1000000 };
+
+    let totalBytes = 0;
+    let loadedBytes = 0;
+    for (const d of Object.values(this.downloads)) {
+      totalBytes += d.total;
+      loadedBytes += d.loaded;
+    }
+
+    const percentage = totalBytes > 0 ? Math.round((loadedBytes / totalBytes) * 100) : 0;
+    this.host.overlayProgress = Math.min(100, Math.max(0, percentage));
   }
 
   openInspectorModal() {

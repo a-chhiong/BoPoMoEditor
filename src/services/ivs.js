@@ -27,10 +27,10 @@ export class IvsEngine {
      * polyphonic character. Must be called before alignIVSText / getTokenInfo for correct results.
      * @returns {Promise<void>}
      */
-    static async loadIVSMap() {
+    static async loadIVSMap(options = {}) {
         if (IvsEngine.ivsMapLoaded) return;
         try {
-            const res = await cachedFetch(IvsEngine.IVS_TABLE_URL);
+            const res = await cachedFetch(IvsEngine.IVS_TABLE_URL, options);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const text = await res.text();
             const map = new Map();

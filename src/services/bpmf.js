@@ -267,8 +267,8 @@ export class BpmfEngine {
      * @param {string} [xlsxPath] 
      * @returns {Promise<{phrases: Object, singleChars: Object}>}
      */
-    static async init(xlsxPath) {
-        return await MoeDictionary.load(xlsxPath);
+    static async init(xlsxPath, options = {}) {
+        return await MoeDictionary.load(xlsxPath, options);
     }
 
     /**

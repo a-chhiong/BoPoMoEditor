@@ -26,13 +26,13 @@ export class MoeDictionary {
      * @param {string} xlsxPath - The relative or absolute path to the XLSX dictionary file.
      * @returns {Promise<{phrases: Object, singleChars: Object}>}
      */
-    static async load(xlsxPath = MoeDictionary.DICT_FILE) {
+    static async load(xlsxPath = MoeDictionary.DICT_FILE, options = {}) {
         if (MoeDictionary.isLoaded) {
             return { phrases: MoeDictionary.phrases, singleChars: MoeDictionary.singleChars };
         }
 
         try {
-            const res = await cachedFetch(xlsxPath);
+            const res = await cachedFetch(xlsxPath, options);
             const buffer = await res.arrayBuffer();
 
             // Parse binary Excel data on the fly

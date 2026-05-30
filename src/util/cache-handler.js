@@ -35,6 +35,11 @@ export async function cachedFetch(input, options = {}) {
 
         if (!isNaN(age) && age < ttl) {
           console.log(`[Cache] Cache hit for ${url} (age: ${(age / 1000 / 60).toFixed(1)} mins)`);
+          if (options.onProgress) {
+            const contentLength = cachedResponse.headers.get('content-length');
+            const total = contentLength ? parseInt(contentLength, 10) : 0;
+            options.onProgress(total, total);
+          }
           return cachedResponse.clone();
         }
 
@@ -76,9 +81,18 @@ export async function cachedFetch(input, options = {}) {
             });
 
             await cache.put(url, refreshedResponse.clone());
+            if (options.onProgress) {
+              const total = blob.size;
+              options.onProgress(total, total);
+            }
             return refreshedResponse;
           } catch (updateErr) {
             console.warn(`[Cache] Failed to refresh cache headers for ${url}:`, updateErr);
+            if (options.onProgress) {
+              const contentLength = cachedResponse.headers.get('content-length');
+              const total = contentLength ? parseInt(contentLength, 10) : 0;
+              options.onProgress(total, total);
+            }
             return cachedResponse.clone();
           }
         }
@@ -88,7 +102,42 @@ export async function cachedFetch(input, options = {}) {
     // Cache miss or expired with changed content: Fetch from network
     console.log(`[Cache] Fetching full asset from network: ${url}`);
     try {
-      const response = await fetch(input, fetchOptions);
+      let response;
+      if (options.onProgress) {
+        const rawResponse = await fetch(input, fetchOptions);
+        if (!rawResponse.ok) {
+          return rawResponse;
+        }
+
+        const contentLength = rawResponse.headers.get('content-length');
+        const total = contentLength ? parseInt(contentLength, 10) : 0;
+
+        if (rawResponse.body) {
+          const reader = rawResponse.body.getReader();
+          let loaded = 0;
+          const chunks = [];
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            loaded += value.length;
+            options.onProgress(loaded, total);
+          }
+
+          const blob = new Blob(chunks);
+          response = new Response(blob, {
+            status: rawResponse.status,
+            statusText: rawResponse.statusText,
+            headers: rawResponse.headers
+          });
+        } else {
+          response = rawResponse;
+        }
+      } else {
+        response = await fetch(input, fetchOptions);
+      }
+
       if (response.ok) {
         try {
           const blob = await response.clone().blob();
@@ -111,6 +160,11 @@ export async function cachedFetch(input, options = {}) {
     } catch (networkErr) {
       if (cachedResponse) {
         console.warn(`[Cache] Network fetch failed for ${url}. Returning expired cached response as fallback.`, networkErr);
+        if (options.onProgress) {
+          const contentLength = cachedResponse.headers.get('content-length');
+          const total = contentLength ? parseInt(contentLength, 10) : 0;
+          options.onProgress(total, total);
+        }
         return cachedResponse.clone();
       }
       throw networkErr;

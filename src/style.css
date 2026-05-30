@@ -172,6 +172,27 @@ body {
     font-size: 0.9rem;
     color: var(--text-muted);
 }
+.loader-progress-bar-container {
+    width: 240px;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+.loader-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+}
+.loader-progress-text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-top: 8px;
+}
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
