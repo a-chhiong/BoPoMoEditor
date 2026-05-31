@@ -476,5 +476,3 @@ export class BopomoEditorApp extends LitElement {
   }
 }
 
-customElements.define('bopomo-editor-app', BopomoEditorApp);
-

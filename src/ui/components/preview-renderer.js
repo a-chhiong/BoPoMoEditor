@@ -154,5 +154,3 @@ export class PreviewRenderer extends LitElement {
     });
   }
 }
-
-customElements.define('preview-renderer', PreviewRenderer);

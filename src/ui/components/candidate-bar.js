@@ -257,5 +257,3 @@ export class CandidateBar extends LitElement {
     }
   }
 }
-
-customElements.define('candidate-bar', CandidateBar);

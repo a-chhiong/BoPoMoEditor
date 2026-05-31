@@ -105,5 +105,3 @@ export class AppHeader extends LitElement {
     `;
   }
 }
-
-customElements.define('app-header', AppHeader);

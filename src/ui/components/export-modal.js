@@ -78,5 +78,3 @@ export class ExportModal extends LitElement {
     `;
   }
 }
-
-customElements.define('export-modal', ExportModal);

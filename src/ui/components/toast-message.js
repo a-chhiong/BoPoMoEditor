@@ -24,5 +24,3 @@ export class ToastMessage extends LitElement {
     `;
   }
 }
-
-customElements.define('toast-message', ToastMessage);

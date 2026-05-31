@@ -104,5 +104,3 @@ export class EditorPanel extends LitElement {
     `;
   }
 }
-
-customElements.define('editor-panel', EditorPanel);

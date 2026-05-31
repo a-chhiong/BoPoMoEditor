@@ -145,5 +145,3 @@ export class InspectorModal extends LitElement {
     `;
   }
 }
-
-customElements.define('inspector-modal', InspectorModal);

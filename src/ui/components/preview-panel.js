@@ -236,5 +236,3 @@ export class PreviewPanel extends LitElement {
     `;
   }
 }
-
-customElements.define('preview-panel', PreviewPanel);

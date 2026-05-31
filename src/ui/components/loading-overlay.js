@@ -39,5 +39,3 @@ export class LoadingOverlay extends LitElement {
     `;
   }
 }
-
-customElements.define('loading-overlay', LoadingOverlay);
