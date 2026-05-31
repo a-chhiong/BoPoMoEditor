@@ -300,12 +300,15 @@ export class BpmfEngine {
         // Post-process to inject Pinyin translation for the UI feature
         return parsedTokens.map(token => {
             if (token.type === 'chinese') {
+                const candidates = BpmfEngine.getCandidates(token.char);
+                const isPolyphonic = candidates.length > 1;
                 // If the token is a custom pre-annotated tag or manual override with explicit pinyin, preserve it
                 if (token.pinyin !== undefined && token.pinyin !== null && token.isCustom) {
-                    return token;
+                    return { ...token, isPolyphonic };
                 }
                 return {
                     ...token,
+                    isPolyphonic,
                     pinyin: BpmfEngine.zhuyinToPinyin(token.zhuyin)
                 };
             }

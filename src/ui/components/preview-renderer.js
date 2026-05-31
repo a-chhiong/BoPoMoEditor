@@ -76,7 +76,7 @@ export class PreviewRenderer extends LitElement {
           <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,3" />
           <text x="50" y="58" dominant-baseline="middle" text-anchor="middle" font-family="'Noto Sans TC', sans-serif" font-weight="900" font-size="44" fill="currentColor">ㄅ</text>
         </svg>
-        <p class="placeholder-desc">請在左側輸入框輸入中文字。</p>
+        <p class="placeholder-desc">請在編輯區輸入中文字。</p>
       </div>
     `;
   }

@@ -6,6 +6,9 @@ import { ToastController } from './controllers/toast-controller.js';
 import { FeatureController } from './controllers/feature-controller.js';
 import { ShellDelegate } from '../util/shell-delegate.js';
 import { PRESETS } from '../configs/static.js';
+import { Tokenizer } from '../services/tokenizer.js';
+import { IvsEngine } from '../services/ivs.js';
+import { ManualOverrides } from '../util/manual-overrides.js';
 
 import './components/app-header.js';
 import './components/editor-panel.js';
@@ -74,7 +77,9 @@ export class BopomoEditorApp extends LitElement {
     toastShow: { type: Boolean },
 
     // TTS state
-    ttsActiveTokenIndex: { type: Number }
+    ttsActiveTokenIndex: { type: Number },
+    lastUpdateTime: { type: String },
+    lastUpdateIso: { type: String }
   };
 
   constructor() {
@@ -88,6 +93,9 @@ export class BopomoEditorApp extends LitElement {
     this.currentText = PRESETS['preset-poyin'];
     this.charCount = this.computeCharacterCount(this.currentText);
     this.ttsState = 'stopped';
+    const now = new Date();
+    this.lastUpdateTime = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+    this.lastUpdateIso = now.toISOString();
 
     // MVVM state defaults
     this.parsedTokens = [];
@@ -197,6 +205,37 @@ export class BopomoEditorApp extends LitElement {
 
   computeCharacterCount(text) {
     return [...(text || '')].filter((char) => /\p{Script=Han}/u.test(char)).length;
+  }
+
+  get confirmedPolyphonicCount() {
+    if (this.currentMode === 'bpmf') {
+      const polyphonicTokens = this.parsedTokens.filter(t => t.type === 'chinese' && t.isPolyphonic);
+      if (polyphonicTokens.length === 0) {
+        return 0;
+      }
+      return polyphonicTokens.filter(t => t.inPhrase || t.isCustom).length;
+    } else {
+      if (!this.parsedTokens || this.parsedTokens.length === 0) {
+        return 0;
+      }
+      const plainText = this.parsedTokens.map(t => [...t][0]).join('');
+      const overrides = ManualOverrides.get();
+      const contextTokens = Tokenizer.tokenize(plainText, overrides);
+
+      let confirmed = 0;
+      this.parsedTokens.forEach((t, i) => {
+        const info = IvsEngine.getTokenInfo(t);
+        if (info.isChinese && info.hasPolyphonic) {
+          const contextToken = contextTokens[i];
+          const isCalibrated = (contextToken && (contextToken.inPhrase || contextToken.isCustom)) || info.type !== 'polyphonic';
+          if (isCalibrated) {
+            confirmed++;
+          }
+        }
+      });
+
+      return confirmed;
+    }
   }
 
   deselectWord() {
@@ -341,6 +380,10 @@ export class BopomoEditorApp extends LitElement {
             class="grid-panel editor-panel"
             .currentText=${this.currentText}
             .charCount=${this.charCount}
+            .currentMode=${this.currentMode}
+            .confirmedPolyphonicCount=${this.confirmedPolyphonicCount}
+            .lastUpdateTime=${this.lastUpdateTime}
+            .lastUpdateIso=${this.lastUpdateIso}
             @editor-input=${this.handleEditorInput}
             @clear-editor=${this.clearEditor}
             @toggle-preset-dropdown=${this.togglePresetDropdown}

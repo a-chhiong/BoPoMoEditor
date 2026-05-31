@@ -75,6 +75,16 @@ export class PreviewPanel extends LitElement {
     this.dispatchEvent(new CustomEvent('adjust-zoom', { detail: delta, bubbles: true, composed: true }));
   }
 
+  get hasNoWords() {
+    if (!this.parsedTokens || this.parsedTokens.length === 0) {
+      return true;
+    }
+    const text = this.currentMode === 'bpmf'
+      ? this.parsedTokens.map(t => t.char || '').join('')
+      : this.parsedTokens.join('');
+    return text.trim().length === 0;
+  }
+
   render() {
     const activeZoom = ['50%', '75%', '100%', '125%', '150%'][this.currentZoomIdx] || '100%';
     
@@ -202,7 +212,7 @@ export class PreviewPanel extends LitElement {
               ttsPlayTitle = '繼續播放';
             }
             return html`
-              <button class="action-icon-btn btn-audio" id="btn-tts-play" @click=${this.toggleTts} title="${ttsPlayTitle}">
+              <button class="action-icon-btn btn-audio" id="btn-tts-play" @click=${this.toggleTts} title="${ttsPlayTitle}" ?disabled=${!this.parsedTokens || this.parsedTokens.length === 0 || this.ttsState === 'playing'}>
                 ${this.ttsState === 'playing'
                   ? html`
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="tts-play-icon">

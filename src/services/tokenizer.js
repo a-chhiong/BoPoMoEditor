@@ -189,7 +189,6 @@ export class Tokenizer {
                 };
             }
 
-            delete resolvedToken.inPhrase;
             finalTokens.push(resolvedToken);
         });
 

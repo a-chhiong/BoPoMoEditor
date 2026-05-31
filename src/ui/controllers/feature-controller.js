@@ -126,6 +126,10 @@ export class FeatureController {
     const text = rawText || '';
     this.host.currentText = text;
 
+    const now = new Date();
+    this.host.lastUpdateTime = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+    this.host.lastUpdateIso = now.toISOString();
+
     if (this.host.currentMode === 'bpmf') {
       const overrides = ManualOverrides.get();
       const tokens = BpmfEngine.tokenize(text, overrides);

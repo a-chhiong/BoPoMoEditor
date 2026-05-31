@@ -2,12 +2,27 @@ import { LitElement, html } from 'lit';
 
 export class AppHeader extends LitElement {
   static properties = {
-    currentMode: { type: String }
+    currentMode: { type: String },
+    isFullscreen: { type: Boolean }
   };
 
   constructor() {
     super();
     this.currentMode = 'bpmf';
+    this.isFullscreen = false;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._onFullscreenChange = () => {
+      this.isFullscreen = !!document.fullscreenElement;
+    };
+    document.addEventListener('fullscreenchange', this._onFullscreenChange);
+  }
+
+  disconnectedCallback() {
+    document.removeEventListener('fullscreenchange', this._onFullscreenChange);
+    super.disconnectedCallback();
   }
 
   createRenderRoot() {
@@ -27,6 +42,16 @@ export class AppHeader extends LitElement {
       bubbles: true,
       composed: true
     }));
+  }
+
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
   }
 
   render() {
@@ -52,6 +77,19 @@ export class AppHeader extends LitElement {
               <button class="segment-btn ${this.currentMode === 'ivs' ? 'active' : ''}" id="btn-mode-ivs" @click=${() => this.switchMode('ivs')} title="使用 Unicode IVS 變體選字及字型渲染">IVS 字型</button>
             </div>
           </div>
+
+          <button class="theme-toggle-btn" id="fullscreen-toggle" @click=${this.toggleFullscreen} title="切換全螢幕模式">
+            ${this.isFullscreen
+              ? html`
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;">
+                  <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>`
+              : html`
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>`
+            }
+          </button>
 
           <button class="theme-toggle-btn" id="theme-toggle" @click=${this.toggleTheme} title="切換深淺色主題">
             <svg viewBox="0 0 24 24" class="sun-icon" fill="none" stroke="currentColor" stroke-width="2">

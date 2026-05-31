@@ -3,13 +3,21 @@ import { LitElement, html } from 'lit';
 export class EditorPanel extends LitElement {
   static properties = {
     currentText: { type: String },
-    charCount: { type: Number }
+    charCount: { type: Number },
+    currentMode: { type: String },
+    confirmedPolyphonicCount: { type: Number },
+    lastUpdateTime: { type: String },
+    lastUpdateIso: { type: String }
   };
 
   constructor() {
     super();
     this.currentText = '';
     this.charCount = 0;
+    this.currentMode = 'bpmf';
+    this.confirmedPolyphonicCount = 0;
+    this.lastUpdateTime = '';
+    this.lastUpdateIso = '';
   }
 
   createRenderRoot() {
@@ -81,12 +89,17 @@ export class EditorPanel extends LitElement {
 
       <div class="editor-body">
         <textarea class="main-textarea" id="main-editor" .value=${this.currentText} @input=${this.onEditorInput}
-          placeholder="在此輸入中文字，系統將自動解析，並支援點擊右側預覽進行微調破音..."></textarea>
+          placeholder="在此輸入中文字，系統將自動解析，並支援點擊預覽區的中文字進行微調破音..."></textarea>
       </div>
 
       <div class="editor-footer">
         <span class="character-counter" id="char-counter">共 ${this.charCount} 字</span>
-        <span class="editor-status-text"><span class="success-dot"></span> 99% 多音字已智慧校正</span>
+        <output class="editor-status-text" role="status" aria-live="polite">
+          <span class="status-message">
+            <time datetime="${this.lastUpdateIso}" id="correction-time">${this.lastUpdateTime}</time> 校正完成 — 
+            <strong id="corrected-count">${this.charCount}</strong> 字已標註，<strong id="polyphonic-count">${this.confirmedPolyphonicCount}</strong> 個多音字${this.currentMode === 'bpmf' ? '' : '形'}已確認
+          </span>
+        </output>
       </div>
     `;
   }
