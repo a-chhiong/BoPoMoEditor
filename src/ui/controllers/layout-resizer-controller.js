@@ -21,7 +21,7 @@ export class LayoutResizerController {
     this.resizer = this.host.querySelector('#layout-resizer');
     this.mainGrid = this.host.querySelector('.app-main-grid');
     
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= 1024;
     
     if (this.resizer) {
       this.resizer.classList.add('active');
@@ -38,7 +38,7 @@ export class LayoutResizerController {
   doDrag(event) {
     if (!this.isDragging || !this.mainGrid) return;
 
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= 1024;
 
     if (isMobile) {
       let clientY = event.clientY;
