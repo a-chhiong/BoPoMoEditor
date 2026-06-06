@@ -97,7 +97,7 @@ export class EditorPanel extends LitElement {
         <output class="editor-status-text" role="status" aria-live="polite">
           <span class="status-message">
             <time datetime="${this.lastUpdateIso}" id="correction-time">${this.lastUpdateTime}</time> 校正完成 — 
-            <strong id="corrected-count">${this.charCount}</strong> 字已標註，<strong id="polyphonic-count">${this.confirmedPolyphonicCount}</strong> 個多音字${this.currentMode === 'bpmf' ? '' : '形'}已確認
+            <strong id="polyphonic-count">${this.confirmedPolyphonicCount}</strong> 個多音字${this.currentMode === 'bpmf' ? '' : '形'}已確認
           </span>
         </output>
       </div>
