@@ -210,31 +210,19 @@ export class BopomoEditorApp extends LitElement {
   get confirmedPolyphonicCount() {
     if (this.currentMode === 'bpmf') {
       const polyphonicTokens = this.parsedTokens.filter(t => t.type === 'chinese' && t.isPolyphonic);
-      if (polyphonicTokens.length === 0) {
-        return 0;
-      }
-      return polyphonicTokens.filter(t => t.inPhrase || t.isCustom).length;
+      return polyphonicTokens.length;
     } else {
       if (!this.parsedTokens || this.parsedTokens.length === 0) {
         return 0;
       }
-      const plainText = this.parsedTokens.map(t => [...t][0]).join('');
-      const overrides = ManualOverrides.get();
-      const contextTokens = Tokenizer.tokenize(plainText, overrides);
-
-      let confirmed = 0;
-      this.parsedTokens.forEach((t, i) => {
+      let count = 0;
+      this.parsedTokens.forEach((t) => {
         const info = IvsEngine.getTokenInfo(t);
         if (info.isChinese && info.hasPolyphonic) {
-          const contextToken = contextTokens[i];
-          const isCalibrated = (contextToken && (contextToken.inPhrase || contextToken.isCustom)) || info.type !== 'polyphonic';
-          if (isCalibrated) {
-            confirmed++;
-          }
+          count++;
         }
       });
-
-      return confirmed;
+      return count;
     }
   }
 

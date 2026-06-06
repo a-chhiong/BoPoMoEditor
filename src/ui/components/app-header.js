@@ -73,7 +73,7 @@ export class AppHeader extends LitElement {
         <div class="header-right">
           <div class="header-mode-switcher">
             <div class="segmented-control">
-              <button class="segment-btn ${this.currentMode === 'bpmf' ? 'active' : ''}" id="btn-mode-bpmf" @click=${() => this.switchMode('bpmf')} title="使用 HTML ruby 標籤及 CSS 排版渲染">HTML 旁註</button>
+              <button class="segment-btn ${this.currentMode === 'bpmf' ? 'active' : ''}" id="btn-mode-bpmf" @click=${() => this.switchMode('bpmf')} title="使用 HTML bpmf 標籤及 CSS 排版渲染">BPMF 旁註</button>
               <button class="segment-btn ${this.currentMode === 'ivs' ? 'active' : ''}" id="btn-mode-ivs" @click=${() => this.switchMode('ivs')} title="使用 Unicode IVS 變體選字及字型渲染">IVS 字型</button>
             </div>
           </div>

@@ -49,7 +49,7 @@ export class ExportModal extends LitElement {
           </div>
 
           <div class="modal-tabs">
-            <button class="tab-btn ${this.activeTab === 'html' ? 'active' : ''}" id="tab-btn-html" @click=${() => this.switchTab('tab-html')}>HTML 旁註標記</button>
+            <button class="tab-btn ${this.activeTab === 'html' ? 'active' : ''}" id="tab-btn-html" @click=${() => this.switchTab('tab-html')}>BPMF 旁註標記</button>
             <button class="tab-btn ${this.activeTab === 'css' ? 'active' : ''}" id="tab-btn-css" @click=${() => this.switchTab('tab-css')}>CSS 樣式表</button>
           </div>
 
