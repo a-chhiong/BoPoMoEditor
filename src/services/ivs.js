@@ -92,6 +92,65 @@ export class IvsEngine {
     }
 
     /**
+     * Converts HTML-style <bpmf> tags (used in ruby/bpmf mode) to their plain CJK character 
+     * + IVS variation selector / PUA representation for proper ivs alignment.
+     * @param {string} text 
+     * @returns {string}
+     */
+    static convertBpmfTagsToIvs(text) {
+        if (!text) return '';
+        const regex = /<bpmf\s+([^>]*?)>([^<]*?)<\/bpmf>/g;
+        return text.replace(regex, (match, attrStr, baseChar) => {
+            const zhuyinMatch = attrStr.match(/zhuyin="([^"]*)"/);
+            const pinyinMatch = attrStr.match(/pinyin="([^"]*)"/);
+            const zhuyin = zhuyinMatch ? zhuyinMatch[1] : '';
+            const pinyin = pinyinMatch ? pinyinMatch[1] : '';
+
+            // Handle special cases: blank / brackets
+            let special = null;
+            if (zhuyin === '' && pinyin === '') special = 'blank';
+            else if (zhuyin === ' ' && pinyin === ' ') special = 'brackets';
+
+            if (special === 'blank') {
+                return baseChar + String.fromCodePoint(IvsEngine.VS_BASE);
+            }
+            if (special === 'brackets') {
+                return baseChar + String.fromCodePoint(IvsEngine.VS_BASE) + String.fromCodePoint(0xF000);
+            }
+
+            // Normal or custom pronunciation
+            const candidates = MoeDictionary.singleChars[baseChar] || [];
+            const hasPolyphonic = candidates.length > 1;
+
+            if (hasPolyphonic && zhuyin) {
+                // Try to find in authoritative IVS map
+                const ivsReadings = IvsEngine.ivsCharMap.get(baseChar);
+                if (ivsReadings) {
+                    const ivsIdx = ivsReadings.indexOf(zhuyin);
+                    if (ivsIdx !== -1) {
+                        const vsChar = ivsIdx > 0 ? String.fromCodePoint(IvsEngine.VS_BASE + ivsIdx) : '';
+                        return baseChar + vsChar;
+                    }
+                }
+                // Fallback to dictionary candidate order
+                const matchIdx = candidates.findIndex(c => c.zhuyin === zhuyin);
+                if (matchIdx !== -1) {
+                    const vsChar = matchIdx > 0 ? String.fromCodePoint(IvsEngine.VS_BASE + matchIdx) : '';
+                    return baseChar + vsChar;
+                }
+            }
+
+            // If it's a custom pronunciation not in dictionary candidates, check if we can map it to PUA
+            if (zhuyin && IvsEngine.RUBY_MAPPING[zhuyin]) {
+                const puaCode = IvsEngine.RUBY_MAPPING[zhuyin];
+                return baseChar + String.fromCodePoint(IvsEngine.VS_BASE) + String.fromCodePoint(puaCode);
+            }
+
+            return baseChar;
+        });
+    }
+
+    /**
      * Context-Aware Automatic IVS Pronunciation Alignment
      * Strips variation selectors, runs Tokenizer to find correct contextual pronunciations,
      * and automatically pre-selects and appends the matching variation selector for polyphonic characters.
@@ -101,7 +160,8 @@ export class IvsEngine {
      * @returns {Array<string>}
      */
     static alignIVSText(rawText, manualOverrides = {}) {
-        const rawTokens = IvsEngine.parseIVSText(rawText);
+        const preprocessedText = IvsEngine.convertBpmfTagsToIvs(rawText);
+        const rawTokens = IvsEngine.parseIVSText(preprocessedText);
         
         // 1. Reconstruct plain text by stripping variation selectors
         let plainText = '';
